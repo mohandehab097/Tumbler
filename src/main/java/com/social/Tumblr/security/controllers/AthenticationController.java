@@ -21,7 +21,7 @@ public class AthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @RequestPart("registerRequestDto") @Valid RegisterRequestDto registerRequestDto
-            , @RequestPart("imageFile") MultipartFile imageFile) {
+            ,@RequestPart(value = "imageFile", required = false)  MultipartFile imageFile) {
         authenticationService.register(registerRequestDto, imageFile);
         return ResponseEntity.ok("Registration successful. Please verify your email.");
     }

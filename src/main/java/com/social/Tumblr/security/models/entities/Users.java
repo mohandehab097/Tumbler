@@ -1,6 +1,9 @@
 package com.social.Tumblr.security.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.social.Tumblr.posts.models.entities.Comments;
+import com.social.Tumblr.posts.models.entities.Likes;
+import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.security.models.enums.Role;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,24 +46,6 @@ public class Users implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Comments> comments;
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_followers",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id")
-    )
-    private List<Users> followers;
-
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "user_following",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "following_id")
-    )
-    private List<Users> following;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -69,6 +54,9 @@ public class Users implements UserDetails {
 
     @Column(name = "email_verified")
     private boolean emailVerified;
+
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -179,22 +167,6 @@ public class Users implements UserDetails {
 
     public void setComments(List<Comments> comments) {
         this.comments = comments;
-    }
-
-    public List<Users> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(List<Users> followers) {
-        this.followers = followers;
-    }
-
-    public List<Users> getFollowing() {
-        return following;
-    }
-
-    public void setFollowing(List<Users> following) {
-        this.following = following;
     }
 
     public Role getRole() {

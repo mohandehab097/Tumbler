@@ -1,5 +1,8 @@
 package com.social.Tumblr.security.services.serviceImp;
 
+import com.social.Tumblr.posts.models.enums.FollowStatus;
+import com.social.Tumblr.posts.services.service.FollowerService;
+import com.social.Tumblr.posts.services.service.PostService;
 import com.social.Tumblr.security.models.dtos.response.UserProfileResponseDto;
 import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
 import com.social.Tumblr.security.models.dtos.request.ChangePasswordRequest;
@@ -46,6 +49,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ImagesService imagesService;
 
+    @Autowired
+    private FollowerService followerService;
+
+    @Autowired
+    private PostService postService;
+
 
     @Override
     public String changePassword(ChangePasswordRequest request, Principal currentUser) {
@@ -57,12 +66,50 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileResponseDto getUserProfile(Principal currentUser) {
+    public UserProfileResponseDto getCurrentUserProfile(Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         UserProfileResponseDto userProfileDto = userMapper.mapUserToUserProfile(user);
         userProfileDto.setImage("/" + imagePath + user.getImage());
+        userProfileDto.setNumberOfFollowers(getNumberOfFollowers(user));
+        userProfileDto.setNumberOfFollowing(getNumberOfFollowing(user));
+        userProfileDto.setNumberOfPosts(getNumberOfPosts(user));
         return userProfileDto;
     }
+
+    @Override
+    public UserProfileResponseDto getUserProfile(Principal currentUser, Integer userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+        UserProfileResponseDto userProfileDto = userMapper.mapUserToUserProfile(user);
+        userProfileDto.setImage("/" + imagePath + user.getImage());
+        userProfileDto.setNumberOfFollowers(getNumberOfFollowers(user));
+        userProfileDto.setNumberOfFollowing(getNumberOfFollowing(user));
+        userProfileDto.setNumberOfPosts(getNumberOfPosts(user));
+//        userProfileDto.setFollow(checkIsFollow(currentUser, userId));
+        userProfileDto.setFollowStatus(getFollowStatus(currentUser,userId));
+        return userProfileDto;
+    }
+
+    private boolean checkIsFollow(Principal currentUser, Integer userId) {
+        return followerService.isFollowing(currentUser, userId);
+    }
+
+    private FollowStatus getFollowStatus(Principal currentUser, Integer userId) {
+        return followerService.getFollowStatus(currentUser, userId);
+    }
+
+    private Long getNumberOfFollowers(Users user) {
+        return followerService.getNumberFollowers(user);
+    }
+
+    private Long getNumberOfFollowing(Users user) {
+        return followerService.getNumberFollowing(user);
+    }
+
+    private Long getNumberOfPosts(Users user) {
+        return postService.getNumberOfPosts(user);
+    }
+
 
     @Override
     public List<SearchedUsersResponseDto> findUsersByUserName(Principal currentUser, String userName) {
@@ -96,7 +143,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private Users getUserById(Integer userId) {
+
+    @Override
+    public Users getUserById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
     }

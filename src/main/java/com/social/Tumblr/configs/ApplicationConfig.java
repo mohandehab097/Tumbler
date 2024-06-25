@@ -3,12 +3,14 @@ package com.social.Tumblr.configs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
 @Configuration
+@EnableJpaAuditing
 public class ApplicationConfig {
 
     @Value("${mail.host}")
@@ -34,5 +36,6 @@ public class ApplicationConfig {
         props.put("mail.smtp.starttls.enable", "true");
         return mailSender;
     }
+
 
 }

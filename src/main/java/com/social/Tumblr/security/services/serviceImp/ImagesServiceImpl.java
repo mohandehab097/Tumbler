@@ -21,24 +21,29 @@ public class ImagesServiceImpl implements ImagesService {
     @Override
     public String uploadImage(String path, MultipartFile file) {
         try {
-            String originalFilename = file.getOriginalFilename();
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-            String filePath = path + File.separator + uniqueFilename;
+            if (file != null) {
+                String originalFilename = file.getOriginalFilename();
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+                String filePath = path + File.separator + uniqueFilename;
 
-            File f = new File(path);
+                File f = new File(path);
 
-            if (!f.exists()) {
-                f.mkdir();
+                if (!f.exists()) {
+                    f.mkdir();
+                }
+
+                Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+
+                return uniqueFilename;
+            } else {
+                return null;
             }
-
-            Files.copy(file.getInputStream(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
-
-            return uniqueFilename;
 
         } catch (IOException e) {
             throw new RuntimeException("error in uploading image");
         }
+
     }
 
     public void deleteImage(String path, String fileName) {

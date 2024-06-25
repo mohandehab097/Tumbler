@@ -1,5 +1,7 @@
 package com.social.Tumblr.security.models.dtos.response;
 
+import com.social.Tumblr.posts.models.enums.FollowStatus;
+
 public class UserProfileResponseDto {
 
     private String fullName;
@@ -7,9 +9,11 @@ public class UserProfileResponseDto {
     private String phoneNumber;
     private String image;
     private String bio;
-//    private Integer NumberOfFollowers;
-//    private Integer NumberOfFollowing;
-//    private Integer NumberOfPosts;
+    //    private boolean isFollow;
+    private FollowStatus followStatus;
+    private Long NumberOfFollowers;
+    private Long NumberOfFollowing;
+    private Long NumberOfPosts;
 
 
     public String getFullName() {
@@ -50,5 +54,37 @@ public class UserProfileResponseDto {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public FollowStatus getFollowStatus() {
+        return followStatus;
+    }
+
+    public void setFollowStatus(FollowStatus followStatus) {
+        this.followStatus = followStatus;
+    }
+
+    public Long getNumberOfFollowers() {
+        return NumberOfFollowers;
+    }
+
+    public void setNumberOfFollowers(Long numberOfFollowers) {
+        NumberOfFollowers = numberOfFollowers;
+    }
+
+    public Long getNumberOfFollowing() {
+        return NumberOfFollowing;
+    }
+
+    public void setNumberOfFollowing(Long numberOfFollowing) {
+        NumberOfFollowing = numberOfFollowing;
+    }
+
+    public Long getNumberOfPosts() {
+        return NumberOfPosts;
+    }
+
+    public void setNumberOfPosts(Long numberOfPosts) {
+        NumberOfPosts = numberOfPosts;
     }
 }

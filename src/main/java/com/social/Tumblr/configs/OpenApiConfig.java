@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         email = "mohand@gmail.com"
                 ),
                 description = "OpenApi documentation for social media app",
-                title = "OpenApi specification - Mohand",
+                title = "Tumblr App",
                 version = "1.0",
                 termsOfService = "Terms of service"
         ),
@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 ),
                 @Server(
                         description = "PROD ENV",
-                        url = "https://aliboucoding.com/course"
+                        url = "https://tumbler.onrender.com"
                 )
         },
         security = {

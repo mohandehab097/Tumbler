@@ -27,15 +27,20 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "profile", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserProfile(Principal currentUser) {
-        return ResponseEntity.ok(userService.getUserProfile(currentUser));
+    @GetMapping(value = "profile/current", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getCurrentUserProfile(Principal currentUser) {
+        return ResponseEntity.ok(userService.getCurrentUserProfile(currentUser));
+    }
+
+    @GetMapping(value = "profile/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserProfile(Principal currentUser,@PathVariable("userId") Integer userId) {
+        return ResponseEntity.ok(userService.getUserProfile(currentUser,userId));
     }
 
     @PutMapping("profile")
     public ResponseEntity<?> updateUserProfile(
             @RequestPart @Valid UserProfileUpdateRequestDto userProfileUpdateDto,
-            @RequestPart("imageFile") MultipartFile imageFile,
+            @RequestPart(value = "imageFile", required = false)  MultipartFile imageFile,
             Principal currentUser
     ) {
         userService.updateUserProfile(userProfileUpdateDto, currentUser, imageFile);
