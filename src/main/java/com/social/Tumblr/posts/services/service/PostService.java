@@ -4,6 +4,7 @@ import com.social.Tumblr.posts.models.dtos.PostRequestDto;
 import com.social.Tumblr.posts.models.dtos.PostResponseDto;
 import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.security.models.entities.Users;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 public interface PostService {
 
 
-    public void createPost(Principal currentUser, PostRequestDto postRequestDto);
+    public void createPost(Principal currentUser, PostRequestDto postRequestDto, MultipartFile postImage);
 
     public void updatePost(Long postId, Principal currentUser, PostRequestDto postRequestDto);
 
@@ -27,4 +28,7 @@ public interface PostService {
 
     public List<PostResponseDto> getPostsOfCurrentUserAndFollowers(Principal currentUser);
 
-}
+    public List<PostResponseDto> getAllPostsWithPagination(int page, int size,Principal currentUser);
+
+
+    }

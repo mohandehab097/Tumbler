@@ -24,4 +24,6 @@ public interface UserService {
 
     public Users getUserById(Integer userId);
 
+    public String deleteUserById(Integer id);
+
     }

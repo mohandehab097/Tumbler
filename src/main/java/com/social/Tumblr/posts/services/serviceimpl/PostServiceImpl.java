@@ -14,9 +14,15 @@ import com.social.Tumblr.posts.models.repositeries.PostRepository;
 import com.social.Tumblr.posts.services.service.PostService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
+import com.social.Tumblr.security.services.service.ImagesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -35,14 +41,18 @@ public class PostServiceImpl implements PostService {
     private LikeRepository likeRepository;
     @Autowired
     private CommentRepository commentRepository;
+    @Autowired
+    private ImagesService imagesService;
+    @Value("${image.path}")
+    private String imagePath;
 
-    public void createPost(Principal currentUser, PostRequestDto postRequestDto) {
+    public void createPost(Principal currentUser, PostRequestDto postRequestDto, MultipartFile postImage) {
         Users user = getUserFromPrincipal(currentUser);
-
+        String imageFileName = imagesService.uploadImage(imagePath,postImage);
         if (postRequestDto != null) {
             Posts posts = new Posts();
             posts.setContent(postRequestDto.getContent());
-            posts.setImageUrl(postRequestDto.getImageUrl());
+            posts.setImageUrl(imageFileName);
             posts.setUser(user);
             postRepository.save(posts);
         }
@@ -59,7 +69,6 @@ public class PostServiceImpl implements PostService {
 
         if (postRequestDto != null) {
             post.setContent(postRequestDto.getContent());
-            post.setImageUrl(postRequestDto.getImageUrl());
             postRepository.save(post);
         }
     }
@@ -105,12 +114,22 @@ public class PostServiceImpl implements PostService {
         return posts.stream().map(post-> mapToPostResponseDto(post,user)).collect(Collectors.toList());
     }
 
+    public List<PostResponseDto> getAllPostsWithPagination(int page, int size,Principal currentUser) {
+        Users user = getUserFromPrincipal(currentUser);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Posts> postPage = postRepository.findAll(pageable);
+        return postPage.stream()
+                .map(post -> mapToPostResponseDto(post,user)) // Convert to DTO
+                .collect(Collectors.toList());
+    }
+
 
     private PostResponseDto mapToPostResponseDto(Posts post,Users currentUser) {
         PostResponseDto postResponseDto = new PostResponseDto();
         postResponseDto.setId(post.getId());
         postResponseDto.setContent(post.getContent());
-        postResponseDto.setImageUrl(post.getImageUrl());
+        postResponseDto.setImage(post.getImageUrl());
+        postResponseDto.setImage("/" + imagePath + post.getImageUrl());
         postResponseDto.setUsername(post.getUser().getUsername());
         postResponseDto.setNumberOfLikes(likeRepository.countByPostId(post.getId()));
         postResponseDto.setNumberOfComments(commentRepository.countByPostId(post.getId()));

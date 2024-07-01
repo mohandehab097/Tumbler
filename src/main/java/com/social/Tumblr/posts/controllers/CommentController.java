@@ -3,7 +3,6 @@ package com.social.Tumblr.posts.controllers;
 import com.social.Tumblr.posts.models.dtos.CommentRequestDto;
 import com.social.Tumblr.posts.models.dtos.CommentResponseDto;
 import com.social.Tumblr.posts.services.service.CommentService;
-import com.social.Tumblr.posts.services.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,4 +43,18 @@ public class CommentController {
         List<CommentResponseDto> comments = commentService.getCommentsForPost(postId);
         return ResponseEntity.ok(comments);
     }
+
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<Void> likeComment(@PathVariable Long commentId, Principal currentUser) {
+        commentService.likeComment(commentId, currentUser);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{commentId}/like")
+    public ResponseEntity<Void> unlikeComment(@PathVariable Long commentId, Principal currentUser) {
+        commentService.unlikeComment(commentId, currentUser);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

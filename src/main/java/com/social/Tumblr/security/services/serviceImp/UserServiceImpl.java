@@ -85,30 +85,11 @@ public class UserServiceImpl implements UserService {
         userProfileDto.setNumberOfFollowers(getNumberOfFollowers(user));
         userProfileDto.setNumberOfFollowing(getNumberOfFollowing(user));
         userProfileDto.setNumberOfPosts(getNumberOfPosts(user));
-//        userProfileDto.setFollow(checkIsFollow(currentUser, userId));
-        userProfileDto.setFollowStatus(getFollowStatus(currentUser,userId));
+        userProfileDto.setFollowStatus(getFollowStatus(currentUser, userId));
         return userProfileDto;
     }
 
-    private boolean checkIsFollow(Principal currentUser, Integer userId) {
-        return followerService.isFollowing(currentUser, userId);
-    }
 
-    private FollowStatus getFollowStatus(Principal currentUser, Integer userId) {
-        return followerService.getFollowStatus(currentUser, userId);
-    }
-
-    private Long getNumberOfFollowers(Users user) {
-        return followerService.getNumberFollowers(user);
-    }
-
-    private Long getNumberOfFollowing(Users user) {
-        return followerService.getNumberFollowing(user);
-    }
-
-    private Long getNumberOfPosts(Users user) {
-        return postService.getNumberOfPosts(user);
-    }
 
 
     @Override
@@ -130,24 +111,40 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private Users getUserFromPrincipal(Principal currentUser) {
-        return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
-    }
-
-    private void validatePasswordChange(ChangePasswordRequest request, Users user) {
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalStateException("Wrong current password.");
-        }
-        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
-            throw new IllegalStateException("Passwords do not match.");
-        }
-    }
-
-
     @Override
     public Users getUserById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
+    }
+
+    @Override
+    public String deleteUserById(Integer id){
+        if(userRepository.findById(id).isEmpty()){
+            return "User id not found";
+        }
+
+          userRepository.deleteById(id);
+        return "User deleted Successfully";
+    }
+
+    private boolean checkIsFollow(Principal currentUser, Integer userId) {
+        return followerService.isFollowing(currentUser, userId);
+    }
+
+    private FollowStatus getFollowStatus(Principal currentUser, Integer userId) {
+        return followerService.getFollowStatus(currentUser, userId);
+    }
+
+    private Long getNumberOfFollowers(Users user) {
+        return followerService.getNumberFollowers(user);
+    }
+
+    private Long getNumberOfFollowing(Users user) {
+        return followerService.getNumberFollowing(user);
+    }
+
+    private Long getNumberOfPosts(Users user) {
+        return postService.getNumberOfPosts(user);
     }
 
     private String updateImageIfNeeded(Users userToUpdate, MultipartFile imageFile) {
@@ -172,4 +169,16 @@ public class UserServiceImpl implements UserService {
         imagesService.deleteImage(imagePath, oldImageFileName);
     }
 
+    private Users getUserFromPrincipal(Principal currentUser) {
+        return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
+    }
+
+    private void validatePasswordChange(ChangePasswordRequest request, Users user) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalStateException("Wrong current password.");
+        }
+        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
+            throw new IllegalStateException("Passwords do not match.");
+        }
+    }
 }

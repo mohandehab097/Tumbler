@@ -18,4 +18,9 @@ public interface CommentService {
 
     public List<CommentResponseDto> getCommentsForPost(Long postId);
 
+    public void likeComment(Long commentId, Principal currentUser);
+
+    public void unlikeComment(Long commentId, Principal currentUser);
+
+
 }

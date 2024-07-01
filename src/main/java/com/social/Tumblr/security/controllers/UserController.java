@@ -55,4 +55,9 @@ public class UserController {
         return ResponseEntity.ok(userService.findUsersByUserName(currentUser, userName));
     }
 
+    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserProfile(@PathVariable("userId") Integer userId) {
+        return ResponseEntity.ok(userService.deleteUserById(userId));
+    }
+
 }

@@ -5,7 +5,7 @@ import java.util.List;
 public class PostResponseDto {
     private Long id;
     private String content;
-    private String imageUrl;
+    private String image;
     private String username;
     private int numberOfLikes;
     private int numberOfComments;
@@ -28,12 +28,12 @@ public class PostResponseDto {
         this.content = content;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImage() {
+        return image;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getUsername() {
