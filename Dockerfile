@@ -10,3 +10,4 @@ WORKDIR /app
 COPY --from=build /app/target/Tumblr-0.0.1-SNAPSHOT.jar Tumblr.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "Tumblr.jar"]
+
