@@ -46,16 +46,14 @@ public class PostServiceImpl implements PostService {
     @Value("${image.path}")
     private String imagePath;
 
-    public void createPost(Principal currentUser, PostRequestDto postRequestDto, MultipartFile postImage) {
+    public void createPost(Principal currentUser, String content, MultipartFile postImage) {
         Users user = getUserFromPrincipal(currentUser);
         String imageFileName = imagesService.uploadImage(imagePath,postImage);
-        if (postRequestDto != null) {
             Posts posts = new Posts();
-            posts.setContent(postRequestDto.getContent());
+            posts.setContent(content);
             posts.setImageUrl(imageFileName);
             posts.setUser(user);
             postRepository.save(posts);
-        }
     }
 
     public void updatePost(Long postId, Principal currentUser, PostRequestDto postRequestDto) {

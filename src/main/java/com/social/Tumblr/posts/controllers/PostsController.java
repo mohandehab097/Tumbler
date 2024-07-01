@@ -27,9 +27,9 @@ public class PostsController {
     @PostMapping
     public ResponseEntity<Posts> createPost(
             Principal currentUser,
-            @RequestPart("postRequestDto") @Valid PostRequestDto postRequestDto
+            @RequestPart("content") @Valid String content
             ,@RequestPart(value = "postImage", required = false) MultipartFile postImage) {
-        postService.createPost(currentUser, postRequestDto,postImage);
+        postService.createPost(currentUser, content,postImage);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

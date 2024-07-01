@@ -2,7 +2,6 @@ package com.social.Tumblr.posts.services.service;
 
 import com.social.Tumblr.posts.models.dtos.PostRequestDto;
 import com.social.Tumblr.posts.models.dtos.PostResponseDto;
-import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.security.models.entities.Users;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public interface PostService {
 
 
-    public void createPost(Principal currentUser, PostRequestDto postRequestDto, MultipartFile postImage);
+    public void createPost(Principal currentUser, String content, MultipartFile postImage);
 
     public void updatePost(Long postId, Principal currentUser, PostRequestDto postRequestDto);
 
