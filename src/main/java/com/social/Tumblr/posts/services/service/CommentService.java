@@ -20,7 +20,6 @@ public interface CommentService {
 
     public void likeComment(Long commentId, Principal currentUser);
 
-    public void unlikeComment(Long commentId, Principal currentUser);
 
 
 }

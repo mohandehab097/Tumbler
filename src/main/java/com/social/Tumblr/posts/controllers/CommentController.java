@@ -50,11 +50,6 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/{commentId}/unlike")
-    public ResponseEntity<Void> unlikeComment(@PathVariable Long commentId, Principal currentUser) {
-        commentService.unlikeComment(commentId, currentUser);
-        return ResponseEntity.noContent().build();
-    }
 
 
 }

@@ -21,9 +21,5 @@ public class LikeController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/post/{postId}")
-    public ResponseEntity<Void> unlikePost(@PathVariable Long postId, Principal currentUser) {
-        likeService.unlikePost(currentUser, postId);
-        return ResponseEntity.noContent().build();
-    }
+
 }

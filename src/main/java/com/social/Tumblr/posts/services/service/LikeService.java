@@ -12,6 +12,4 @@ public interface LikeService {
 
     public void likePost(Principal currentUser, Long postId);
 
-    public void unlikePost(Principal currentUser, Long postId);
-
 }

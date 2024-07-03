@@ -10,6 +10,9 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
+import com.social.Tumblr.security.services.serviceImp.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import java.util.Collections;
 @Service
 public class GoogleCloudStorageServiceImpl implements GoogleCloudStorageService {
 
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private Drive driveService;
 
@@ -38,6 +42,7 @@ public class GoogleCloudStorageServiceImpl implements GoogleCloudStorageService 
                 JSON_FACTORY,
                 new HttpCredentialsAdapter(credentials))
                 .build();
+        logger.debug("google cloud is ready and credentials file");
     }
 
     public String uploadFile(java.io.File filePath, String mimeType) throws IOException {
@@ -52,6 +57,7 @@ public class GoogleCloudStorageServiceImpl implements GoogleCloudStorageService 
                 .setFields("id")
                 .execute();
         String imageUrl = "https://drive.google.com/uc?export=view&id="+file.getId();
+        logger.debug("image id is {}",file.getId());
         return file.getId();
     }
 

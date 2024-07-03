@@ -62,16 +62,6 @@ public class LikeServiceImpl implements LikeService {
 //        firebaseMessagingService.sendNotificationToToken(deviceToken, title, body);
     }
 
-    public void unlikePost(Principal currentUser, Long postId) {
-        Users user = getUserFromPrincipal(currentUser);
-        Posts post = postRepository.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-
-        Likes like = likeRepository.findByUserAndPost(user, post)
-                .orElseThrow(() -> new ResourceNotFoundException("Like", "userId and postId", postId));
-
-        likeRepository.delete(like);
-    }
 
     private Users getUserFromPrincipal(Principal currentUser) {
         return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();

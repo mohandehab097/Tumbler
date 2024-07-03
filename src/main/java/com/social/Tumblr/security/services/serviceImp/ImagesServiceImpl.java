@@ -45,6 +45,8 @@ public class ImagesServiceImpl implements ImagesService {
                 logger.debug("Image saved successfully");
 
             } catch (IOException e) {
+                logger.error("error in upload image Error: {}",e.getMessage());
+                logger.error("error reason: {}",e.getLocalizedMessage());
                 throw new RuntimeException("Image upload failed");
             }
         }

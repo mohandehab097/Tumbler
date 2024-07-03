@@ -91,26 +91,14 @@ public class CommentServiceImpl implements CommentService {
 
         Optional<LikeComment> existingLike = likeCommentRepository.findByUserAndComment(user, comment);
         if (existingLike.isPresent()) {
-            throw new IllegalStateException("You have already liked this comment");
+            likeCommentRepository.delete(existingLike.get());
+        } else {
+            LikeComment like = new LikeComment();
+            like.setUser(user);
+            like.setComment(comment);
+            like.setCreatedDate(LocalDateTime.now());
+            likeCommentRepository.save(like);
         }
-
-        LikeComment like = new LikeComment();
-        like.setUser(user);
-        like.setComment(comment);
-        like.setCreatedDate(LocalDateTime.now());
-        likeCommentRepository.save(like);
-    }
-
-    @Override
-    public void unlikeComment(Long commentId, Principal currentUser) {
-        Users user = getUserFromPrincipal(currentUser);
-        Comments comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
-
-        LikeComment like = likeCommentRepository.findByUserAndComment(user, comment)
-                .orElseThrow(() -> new EntityNotFoundException("Like not found"));
-
-        likeCommentRepository.delete(like);
     }
 
 
