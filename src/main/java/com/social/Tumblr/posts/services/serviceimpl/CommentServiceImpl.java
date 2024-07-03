@@ -6,6 +6,7 @@ import com.social.Tumblr.posts.models.dtos.CommentRequestDto;
 import com.social.Tumblr.posts.models.dtos.CommentResponseDto;
 import com.social.Tumblr.posts.models.entities.Comments;
 import com.social.Tumblr.posts.models.entities.LikeComment;
+import com.social.Tumblr.posts.models.entities.Likes;
 import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.posts.models.repositeries.CommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
@@ -15,6 +16,7 @@ import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -93,11 +95,16 @@ public class CommentServiceImpl implements CommentService {
         if (existingLike.isPresent()) {
             likeCommentRepository.delete(existingLike.get());
         } else {
-            LikeComment like = new LikeComment();
-            like.setUser(user);
-            like.setComment(comment);
-            like.setCreatedDate(LocalDateTime.now());
-            likeCommentRepository.save(like);
+            try {
+                LikeComment like = new LikeComment();
+                like.setUser(user);
+                like.setComment(comment);
+                like.setCreatedDate(LocalDateTime.now());
+                likeCommentRepository.save(like);
+            } catch (DataIntegrityViolationException e) {
+                throw new IllegalStateException("User has already liked this comment", e);
+            }
+
         }
     }
 

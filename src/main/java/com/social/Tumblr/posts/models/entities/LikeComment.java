@@ -7,7 +7,9 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "likes_comments")
+@Table(name = "likes_comments", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "comment_id"})
+})
 public class LikeComment {
 
     @Id

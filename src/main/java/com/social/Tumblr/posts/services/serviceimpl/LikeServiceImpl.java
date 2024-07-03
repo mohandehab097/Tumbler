@@ -14,6 +14,7 @@ import com.social.Tumblr.security.models.repositeries.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -49,10 +50,14 @@ public class LikeServiceImpl implements LikeService {
             likeRepository.delete(existLike.get());
         }
         else{
-            Likes like = new Likes();
-            like.setUser(user);
-            like.setPost(post);
-            likeRepository.save(like);
+            try {
+                Likes like = new Likes();
+                like.setUser(user);
+                like.setPost(post);
+                likeRepository.save(like);
+            } catch (DataIntegrityViolationException e) {
+                throw new IllegalStateException("User has already liked this post", e);
+            }
         }
 
         String deviceToken = "your-ios-device-token";
