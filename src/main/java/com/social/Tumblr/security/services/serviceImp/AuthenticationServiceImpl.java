@@ -43,9 +43,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private TokenService tokenService;
 
-    @Value("${image.path}")
-    private String imagePath;
-
     @Autowired
     private EmailVerificationService emailVerificationService;
 
@@ -55,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void register(RegisterRequestDto registerRequestDto, MultipartFile imageFile) {
         logger.info("Registering user with email: {}", registerRequestDto.getEmail());
-        String imageFileName = imagesService.uploadImage(imagePath,imageFile);
+        String imageFileName = imagesService.uploadImage(imageFile);
         checkUserDetailsUniqueness(registerRequestDto);
         Users user = CreateUser(imageFileName,registerRequestDto);
         String otp = emailVerificationService.SaveVerificationOtp(user);

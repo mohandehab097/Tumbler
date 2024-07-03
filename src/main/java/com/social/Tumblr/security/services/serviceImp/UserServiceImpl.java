@@ -2,6 +2,7 @@ package com.social.Tumblr.security.services.serviceImp;
 
 import com.social.Tumblr.posts.models.enums.FollowStatus;
 import com.social.Tumblr.posts.services.service.FollowerService;
+import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
 import com.social.Tumblr.posts.services.service.PostService;
 import com.social.Tumblr.security.models.dtos.response.UserProfileResponseDto;
 import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
@@ -55,6 +56,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private GoogleCloudStorageService googleCloudStorageService;
+
 
     @Override
     public String changePassword(ChangePasswordRequest request, Principal currentUser) {
@@ -69,7 +73,10 @@ public class UserServiceImpl implements UserService {
     public UserProfileResponseDto getCurrentUserProfile(Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         UserProfileResponseDto userProfileDto = userMapper.mapUserToUserProfile(user);
-        userProfileDto.setImage("/" + imagePath + user.getImage());
+        if (user.getImage() != null) {
+            String imageUrl = googleCloudStorageService.getFileUrl(user.getImage());
+            userProfileDto.setImage(imageUrl);
+        }
         userProfileDto.setNumberOfFollowers(getNumberOfFollowers(user));
         userProfileDto.setNumberOfFollowing(getNumberOfFollowing(user));
         userProfileDto.setNumberOfPosts(getNumberOfPosts(user));
@@ -81,7 +88,12 @@ public class UserServiceImpl implements UserService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
         UserProfileResponseDto userProfileDto = userMapper.mapUserToUserProfile(user);
-        userProfileDto.setImage("/" + imagePath + user.getImage());
+
+        if (user.getImage() != null) {
+            String imageUrl = googleCloudStorageService.getFileUrl(user.getImage());
+            userProfileDto.setImage(imageUrl);
+        }
+
         userProfileDto.setNumberOfFollowers(getNumberOfFollowers(user));
         userProfileDto.setNumberOfFollowing(getNumberOfFollowing(user));
         userProfileDto.setNumberOfPosts(getNumberOfPosts(user));
@@ -149,9 +161,7 @@ public class UserServiceImpl implements UserService {
 
     private String updateImageIfNeeded(Users userToUpdate, MultipartFile imageFile) {
         if (imageFile != null && !imageFile.isEmpty()) {
-            String newImageFileName = imagesService.uploadImage(imagePath, imageFile);
-            deleteOldImage(userToUpdate.getImage());
-            return newImageFileName;
+           return imagesService.uploadImage(imageFile);
         }
         return userToUpdate.getImage();
     }
@@ -163,10 +173,6 @@ public class UserServiceImpl implements UserService {
         userToUpdate.setBio(userProfileUpdateDto.getBio());
 
         userRepository.save(userToUpdate);
-    }
-
-    private void deleteOldImage(String oldImageFileName) {
-        imagesService.deleteImage(imagePath, oldImageFileName);
     }
 
     private Users getUserFromPrincipal(Principal currentUser) {

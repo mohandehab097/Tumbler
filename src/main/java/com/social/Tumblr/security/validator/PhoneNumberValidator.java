@@ -14,6 +14,9 @@ public class PhoneNumberValidator implements ConstraintValidator<ValidPhoneNumbe
 
     @Override
     public boolean isValid(String phone, ConstraintValidatorContext context) {
+        if (phone == null || phone.trim().isEmpty()) {
+            return true;
+        }
         return Constants.PHONE_PATTERN.matcher(phone).matches();
     }
 }

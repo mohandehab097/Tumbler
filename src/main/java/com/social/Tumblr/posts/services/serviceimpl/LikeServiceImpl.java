@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Service
 public class LikeServiceImpl implements LikeService {
@@ -42,15 +43,17 @@ public class LikeServiceImpl implements LikeService {
 
         Users postOwner = post.getUser();
 
-        if (likeRepository.existsByUserAndPost(user, post)) {
-            throw new IllegalArgumentException("Post already liked by user.");
+        Optional<Likes> existLike = likeRepository.findByUserAndPost(user, post);
+
+        if (existLike.isPresent()) {
+            likeRepository.delete(existLike.get());
         }
-
-        Likes like = new Likes();
-        like.setUser(user);
-        like.setPost(post);
-        likeRepository.save(like);
-
+        else{
+            Likes like = new Likes();
+            like.setUser(user);
+            like.setPost(post);
+            likeRepository.save(like);
+        }
 
         String deviceToken = "your-ios-device-token";
         String title = "Like notification";
