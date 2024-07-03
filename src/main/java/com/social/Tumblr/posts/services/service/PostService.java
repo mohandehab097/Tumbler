@@ -21,7 +21,7 @@ public interface PostService {
 
     public List<PostResponseDto> getAllPostsForUser(Integer userId,Principal currentUser);
 
-    public PostResponseDto getPostById(Long postId);
+    public PostResponseDto getPostById(Long postId,Principal currentUser);
 
     public Long getNumberOfPosts(Users users);
 

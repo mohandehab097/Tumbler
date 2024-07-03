@@ -98,10 +98,11 @@ public class PostServiceImpl implements PostService {
         return posts.stream().map(post -> mapToPostResponseDto(post, user)).collect(Collectors.toList());
     }
 
-    public PostResponseDto getPostById(Long postId) {
+    public PostResponseDto getPostById(Long postId,Principal currentUser) {
+        Users user = getUserFromPrincipal(currentUser);
         Posts post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        return mapToPostResponseDto(post, null);
+        return mapToPostResponseDto(post, user);
     }
 
     public Long getNumberOfPosts(Users users) {
