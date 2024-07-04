@@ -15,13 +15,13 @@ public class TimeUtil {
         long days = duration.toDays();
 
         if (seconds < 60) {
-            return seconds + " seconds ago";
+            return seconds + " S ago";
         } else if (minutes < 60) {
-            return minutes + " minutes ago";
+            return minutes + " M ago";
         } else if (hours < 24) {
-            return hours + " hours ago";
+            return hours + " H ago";
         } else if (days < 7) {
-            return days + " days ago";
+            return days + " D ago";
         } else {
             return createdAt.format(Constants.DATE_FORMATTER);
         }
