@@ -12,8 +12,10 @@ import com.social.Tumblr.posts.models.repositeries.CommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
 import com.social.Tumblr.posts.services.service.CommentService;
+import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
+import com.social.Tumblr.security.utils.TimeUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,6 +43,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private LikeCommentRepository likeCommentRepository;
+
+    @Autowired
+    private GoogleCloudStorageService googleCloudStorageService;
 
     public void addComment(Principal currentUser, Long postId, CommentRequestDto commentRequestDto) {
         Users user = getUserFromPrincipal(currentUser);
@@ -79,9 +84,10 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.delete(comment);
     }
 
-    public List<CommentResponseDto> getCommentsForPost(Long postId) {
+    public List<CommentResponseDto> getCommentsForPost(Long postId,Principal currentUser) {
+        Users user = getUserFromPrincipal(currentUser);
         return commentRepository.findByPostId(postId).stream()
-                .map(this::mapCommentToResponseDto)
+                .map(comment-> mapCommentToResponseDto(comment,user))
                 .collect(Collectors.toList());
     }
 
@@ -109,13 +115,24 @@ public class CommentServiceImpl implements CommentService {
     }
 
 
-    private CommentResponseDto mapCommentToResponseDto(Comments comment) {
+    private CommentResponseDto mapCommentToResponseDto(Comments comment,Users currentUser) {
         CommentResponseDto dto = new CommentResponseDto();
         dto.setId(comment.getId());
         dto.setContent(comment.getContent());
         dto.setUserId(comment.getUser().getId());
-        dto.setUsername(comment.getUser().getUsername());
+        dto.setUsername(comment.getUser().getFullName());
+        dto.setTimeAgo(TimeUtil.calculateTimeAgo(comment.getCreatedAtDate()));
+        dto.setLiked(isCommentLikedByUser(comment, currentUser));
+
+        if (comment.getUser().getImage() != null) {
+            String userImage = googleCloudStorageService.getFileUrl(comment.getUser().getImage());
+            dto.setUserImage(userImage);
+        }
+
         return dto;
+    }
+    private boolean isCommentLikedByUser(Comments comment, Users user) {
+        return likeCommentRepository.existsByUserAndComment(user, comment);
     }
 
     private Users getUserFromPrincipal(Principal currentUser) {

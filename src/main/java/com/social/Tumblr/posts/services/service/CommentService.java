@@ -16,7 +16,7 @@ public interface CommentService {
 
     public void deleteComment(Long commentId, Principal currentUser);
 
-    public List<CommentResponseDto> getCommentsForPost(Long postId);
+    public List<CommentResponseDto> getCommentsForPost(Long postId,Principal currentUser);
 
     public void likeComment(Long commentId, Principal currentUser);
 

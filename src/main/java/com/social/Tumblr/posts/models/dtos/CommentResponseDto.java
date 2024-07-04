@@ -8,7 +8,9 @@ public class CommentResponseDto {
     private String content;
     private Integer userId;
     private String username;
-    private LocalDateTime createdAtDate;
+    private String userImage;
+    private String timeAgo;
+    private boolean isLiked;
 
 
     public Long getId() {
@@ -43,11 +45,27 @@ public class CommentResponseDto {
         this.username = username;
     }
 
-    public LocalDateTime getCreatedAtDate() {
-        return createdAtDate;
+    public String getUserImage() {
+        return userImage;
     }
 
-    public void setCreatedAtDate(LocalDateTime createdAtDate) {
-        this.createdAtDate = createdAtDate;
+    public void setUserImage(String userImage) {
+        this.userImage = userImage;
+    }
+
+    public String getTimeAgo() {
+        return timeAgo;
+    }
+
+    public void setTimeAgo(String timeAgo) {
+        this.timeAgo = timeAgo;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        isLiked = liked;
     }
 }

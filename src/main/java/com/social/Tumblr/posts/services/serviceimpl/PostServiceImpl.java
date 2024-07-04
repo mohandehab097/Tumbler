@@ -9,6 +9,7 @@ import com.social.Tumblr.posts.models.entities.Comments;
 import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.posts.models.mappers.PostMapper;
 import com.social.Tumblr.posts.models.repositeries.CommentRepository;
+import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
@@ -47,6 +48,8 @@ public class PostServiceImpl implements PostService {
     private ImagesService imagesService;
     @Autowired
     private GoogleCloudStorageService googleCloudStorageService;
+    @Autowired
+    private LikeCommentRepository likeCommentRepository;
 
 
     public void createPost(Principal currentUser, String content, MultipartFile postImage) {
@@ -142,7 +145,7 @@ public class PostServiceImpl implements PostService {
         postResponseDto.setTimeAgo(TimeUtil.calculateTimeAgo(post.getCreatedAtDate()));
         postResponseDto.setNumberOfLikes(likeRepository.countByPostId(post.getId()));
         postResponseDto.setNumberOfComments(commentRepository.countByPostId(post.getId()));
-        postResponseDto.setComments(post.getComments().stream().map(this::mapToCommentResponseDto).collect(Collectors.toList()));
+        postResponseDto.setComments(post.getComments().stream().map(comment-> mapCommentToResponseDto(comment,currentUser)).collect(Collectors.toList()));
         postResponseDto.setLiked(isPostLikedByUser(post, currentUser));
         return postResponseDto;
     }
@@ -151,14 +154,26 @@ public class PostServiceImpl implements PostService {
         return likeRepository.existsByUserAndPost(user, post);
     }
 
-    private CommentResponseDto mapToCommentResponseDto(Comments comment) {
-        CommentResponseDto commentResponseDto = new CommentResponseDto();
-        commentResponseDto.setId(comment.getId());
-        commentResponseDto.setContent(comment.getContent());
-        commentResponseDto.setUserId(comment.getUser().getId());
-        commentResponseDto.setUsername(comment.getUser().getUsername());
-        commentResponseDto.setCreatedAtDate(comment.getCreatedAtDate());
-        return commentResponseDto;
+    private boolean isCommentLikedByUser(Comments comment, Users user) {
+        return likeCommentRepository.existsByUserAndComment(user, comment);
+    }
+
+
+    private CommentResponseDto mapCommentToResponseDto(Comments comment,Users currentUser) {
+        CommentResponseDto dto = new CommentResponseDto();
+        dto.setId(comment.getId());
+        dto.setContent(comment.getContent());
+        dto.setUserId(comment.getUser().getId());
+        dto.setUsername(comment.getUser().getFullName());
+        dto.setTimeAgo(TimeUtil.calculateTimeAgo(comment.getCreatedAtDate()));
+        dto.setLiked(isCommentLikedByUser(comment, currentUser));
+
+        if (comment.getUser().getImage() != null) {
+            String userImage = googleCloudStorageService.getFileUrl(comment.getUser().getImage());
+            dto.setUserImage(userImage);
+        }
+
+        return dto;
     }
 
     private Users getUserFromPrincipal(Principal currentUser) {
