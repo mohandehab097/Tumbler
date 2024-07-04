@@ -140,7 +140,9 @@ public class PostServiceImpl implements PostService {
         if (post.getUser().getImage() != null) {
             String userImage = googleCloudStorageService.getFileUrl(post.getUser().getImage());
             postResponseDto.setUserImage(userImage);
+
         }
+        postResponseDto.setUserId(post.getUser().getId());
         postResponseDto.setUsername(post.getUser().getFullName());
         postResponseDto.setTimeAgo(TimeUtil.calculateTimeAgo(post.getCreatedAtDate()));
         postResponseDto.setNumberOfLikes(likeRepository.countByPostId(post.getId()));

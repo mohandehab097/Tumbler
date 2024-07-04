@@ -8,6 +8,7 @@ public class PostResponseDto {
     private Long id;
     private String content;
     private String image;
+    private Integer userId;
     private String username;
     private String userImage;
     private String timeAgo;
@@ -38,6 +39,14 @@ public class PostResponseDto {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {
