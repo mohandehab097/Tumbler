@@ -27,7 +27,7 @@ public class CommentController {
 
     @PutMapping("/{commentId}")
     public ResponseEntity<Void> editComment(@PathVariable Long commentId, Principal currentUser,
-            @RequestBody CommentRequestDto commentRequestDto) {
+                                            @RequestBody CommentRequestDto commentRequestDto) {
         commentService.editComment(commentId, currentUser, commentRequestDto);
         return ResponseEntity.ok().build();
     }
@@ -39,17 +39,19 @@ public class CommentController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> getCommentsForPost(@PathVariable Long postId,Principal currentUser) {
-        List<CommentResponseDto> comments = commentService.getCommentsForPost(postId,currentUser);
+    public ResponseEntity<List<CommentResponseDto>> getCommentsForPost(@PathVariable Long postId, Principal currentUser) {
+        List<CommentResponseDto> comments = commentService.getCommentsForPost(postId, currentUser);
         return ResponseEntity.ok(comments);
     }
 
     @PostMapping("/{commentId}/like")
-    public ResponseEntity<Void> likeComment(@PathVariable Long commentId, Principal currentUser) {
-        commentService.likeComment(commentId, currentUser);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<String> likeComment(@PathVariable Long commentId, Principal currentUser) {
+        if(commentService.likeComment(commentId, currentUser)){
+            return new ResponseEntity<>("Liked Comment successfully", HttpStatus.CREATED);
+        } else{
+            return new ResponseEntity<>("UnLiked Comment successfully", HttpStatus.CREATED);
+        }
     }
-
 
 
 }

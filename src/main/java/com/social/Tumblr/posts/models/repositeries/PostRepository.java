@@ -1,6 +1,8 @@
 package com.social.Tumblr.posts.models.repositeries;
 
 import com.social.Tumblr.posts.models.entities.Posts;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -19,6 +21,8 @@ public interface PostRepository extends JpaRepository<Posts, Long>, PagingAndSor
     List<Posts> findPostsByUserIdOrFollowing(@Param("userId") Integer userId);
 
     List<Posts> findByUserId(Integer userId);
+
+    Page<Posts> findAllByOrderByCreatedAtDateDesc(Pageable pageable);
 
 
 }

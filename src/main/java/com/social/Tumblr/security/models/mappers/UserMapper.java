@@ -5,6 +5,7 @@ import com.social.Tumblr.security.models.dtos.request.RegisterRequestDto;
 import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
 import com.social.Tumblr.security.models.entities.Users;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public interface UserMapper {
 
 
     UserProfileResponseDto mapUserToUserProfile(Users user);
+
 
     List<SearchedUsersResponseDto> mapUsersToSearchedUsers(List<Users> users);
 

@@ -4,7 +4,9 @@ import com.social.Tumblr.security.models.entities.Users;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "follower")
+@Table(name = "follower",uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"follower_id", "follower_id"})
+})
 public class Follower {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

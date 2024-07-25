@@ -3,16 +3,20 @@ package com.social.Tumblr.posts.services.serviceimpl;
 import com.social.Tumblr.posts.exceptions.ResourceNotFoundException;
 import com.social.Tumblr.posts.exceptions.UnauthorizedException;
 import com.social.Tumblr.posts.models.dtos.CommentResponseDto;
+import com.social.Tumblr.posts.models.dtos.LikeResponseDto;
 import com.social.Tumblr.posts.models.dtos.PostRequestDto;
 import com.social.Tumblr.posts.models.dtos.PostResponseDto;
 import com.social.Tumblr.posts.models.entities.Comments;
+import com.social.Tumblr.posts.models.entities.Likes;
 import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.posts.models.mappers.PostMapper;
 import com.social.Tumblr.posts.models.repositeries.CommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
+import com.social.Tumblr.posts.services.service.CommentService;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
+import com.social.Tumblr.posts.services.service.LikeService;
 import com.social.Tumblr.posts.services.service.PostService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
@@ -50,6 +54,10 @@ public class PostServiceImpl implements PostService {
     private GoogleCloudStorageService googleCloudStorageService;
     @Autowired
     private LikeCommentRepository likeCommentRepository;
+    @Autowired
+    private LikeService likeService;
+    @Autowired
+    private CommentService commentService;
 
 
     public void createPost(Principal currentUser, String content, MultipartFile postImage) {
@@ -101,7 +109,7 @@ public class PostServiceImpl implements PostService {
         return posts.stream().map(post -> mapToPostResponseDto(post, user)).collect(Collectors.toList());
     }
 
-    public PostResponseDto getPostById(Long postId,Principal currentUser) {
+    public PostResponseDto getPostById(Long postId, Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         Posts post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
@@ -122,7 +130,7 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDto> getAllPostsWithPagination(int page, int size, Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         Pageable pageable = PageRequest.of(page, size);
-        Page<Posts> postPage = postRepository.findAll(pageable);
+        Page<Posts> postPage = postRepository.findAllByOrderByCreatedAtDateDesc(pageable);
         return postPage.stream()
                 .map(post -> mapToPostResponseDto(post, user)) // Convert to DTO
                 .collect(Collectors.toList());
@@ -147,8 +155,9 @@ public class PostServiceImpl implements PostService {
         postResponseDto.setTimeAgo(TimeUtil.calculateTimeAgo(post.getCreatedAtDate()));
         postResponseDto.setNumberOfLikes(likeRepository.countByPostId(post.getId()));
         postResponseDto.setNumberOfComments(commentRepository.countByPostId(post.getId()));
-        postResponseDto.setComments(post.getComments().stream().map(comment-> mapCommentToResponseDto(comment,currentUser)).collect(Collectors.toList()));
+        postResponseDto.setComments(post.getComments().stream().map(comment -> commentService.mapCommentToResponseDto(comment, currentUser)).collect(Collectors.toList()));
         postResponseDto.setLiked(isPostLikedByUser(post, currentUser));
+        postResponseDto.setLikeResponseDtos(post.getLikes().stream().map(like -> likeService.mapLikesToResponseDto(like.getId(),like.getUser())).collect(Collectors.toList()));
         return postResponseDto;
     }
 
@@ -158,24 +167,6 @@ public class PostServiceImpl implements PostService {
 
     private boolean isCommentLikedByUser(Comments comment, Users user) {
         return likeCommentRepository.existsByUserAndComment(user, comment);
-    }
-
-
-    private CommentResponseDto mapCommentToResponseDto(Comments comment,Users currentUser) {
-        CommentResponseDto dto = new CommentResponseDto();
-        dto.setId(comment.getId());
-        dto.setContent(comment.getContent());
-        dto.setUserId(comment.getUser().getId());
-        dto.setUsername(comment.getUser().getFullName());
-        dto.setTimeAgo(TimeUtil.calculateTimeAgo(comment.getCreatedAtDate()));
-        dto.setLiked(isCommentLikedByUser(comment, currentUser));
-
-        if (comment.getUser().getImage() != null) {
-            String userImage = googleCloudStorageService.getFileUrl(comment.getUser().getImage());
-            dto.setUserImage(userImage);
-        }
-
-        return dto;
     }
 
     private Users getUserFromPrincipal(Principal currentUser) {

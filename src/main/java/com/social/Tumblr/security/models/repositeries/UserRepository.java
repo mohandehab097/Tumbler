@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<Users, Integer> {
 
     Optional<Users> findByFullName(String phoneNumber);
 
-    @Query("SELECT user FROM Users user WHERE user.fullName LIKE %:username% AND user.id <> :id")
+    @Query("SELECT user FROM Users user WHERE UPPER(user.fullName) LIKE UPPER(CONCAT('%', :username, '%')) AND user.id <> :id")
     List<Users> findUsersByUserName(@Param("username") String username, @Param("id") Integer id);
 
 

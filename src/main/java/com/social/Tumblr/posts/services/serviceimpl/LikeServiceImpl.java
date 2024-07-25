@@ -1,13 +1,12 @@
 package com.social.Tumblr.posts.services.serviceimpl;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
 import com.social.Tumblr.posts.exceptions.ResourceNotFoundException;
+import com.social.Tumblr.posts.models.dtos.LikeResponseDto;
 import com.social.Tumblr.posts.models.entities.Likes;
 import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.posts.models.repositeries.LikeRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
+import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
 import com.social.Tumblr.posts.services.service.LikeService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
@@ -37,6 +36,9 @@ public class LikeServiceImpl implements LikeService {
     @Autowired
     private FirebaseMessagingService firebaseMessagingService;
 
+    @Autowired
+    private GoogleCloudStorageService googleCloudStorageService;
+
     public void likePost(Principal currentUser, Long postId) {
         Users user = getUserFromPrincipal(currentUser);
         Posts post = postRepository.findById(postId)
@@ -48,8 +50,7 @@ public class LikeServiceImpl implements LikeService {
 
         if (existLike.isPresent()) {
             likeRepository.delete(existLike.get());
-        }
-        else{
+        } else {
             try {
                 Likes like = new Likes();
                 like.setUser(user);
@@ -62,7 +63,7 @@ public class LikeServiceImpl implements LikeService {
 
         String deviceToken = "your-ios-device-token";
         String title = "Like notification";
-        String body = user.getFullName()+"liked your post"+post.getId();
+        String body = user.getFullName() + "liked your post" + post.getId();
 
 //        firebaseMessagingService.sendNotificationToToken(deviceToken, title, body);
     }
@@ -71,4 +72,21 @@ public class LikeServiceImpl implements LikeService {
     private Users getUserFromPrincipal(Principal currentUser) {
         return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
     }
+
+    public LikeResponseDto mapLikesToResponseDto(long id,Users user) {
+        LikeResponseDto likeResponseDto = new LikeResponseDto();
+
+        likeResponseDto.setId(id);
+        likeResponseDto.setUserId(user.getId());
+        likeResponseDto.setUsername(user.getFullName());
+
+        if (user.getImage() != null) {
+            String userImage = googleCloudStorageService.getFileUrl(user.getImage());
+            likeResponseDto.setUserImage(userImage);
+        }
+
+        return likeResponseDto;
+    }
+
+
 }

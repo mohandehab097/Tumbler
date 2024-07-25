@@ -52,7 +52,11 @@ public class UserController {
             Principal currentUser,
             @RequestParam String userName
     ) {
-        return ResponseEntity.ok(userService.findUsersByUserName(currentUser, userName));
+        if (userName == null || userName.trim().isEmpty()) {
+            return ResponseEntity.ok(userService.findRecentSearches(currentUser));
+        } else {
+            return ResponseEntity.ok(userService.findUsersByUserName(currentUser, userName));
+        }
     }
 
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)

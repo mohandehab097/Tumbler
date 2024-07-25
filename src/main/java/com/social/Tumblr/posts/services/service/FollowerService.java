@@ -14,8 +14,6 @@ public interface FollowerService {
 
     public boolean followUser(Principal currentUser, Integer userId);
 
-    public boolean unfollowUser(Principal currentUser, Integer userId);
-
     public boolean isFollowing(Principal currentUser, Integer userId);
 
     public FollowStatus getFollowStatus(Principal currentUser, Integer userId);

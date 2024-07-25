@@ -8,6 +8,7 @@ import com.social.Tumblr.security.models.entities.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LikeCommentRepository extends JpaRepository<LikeComment, Long> {
@@ -15,6 +16,10 @@ public interface LikeCommentRepository extends JpaRepository<LikeComment, Long> 
     Optional<LikeComment> findByUserAndComment(Users user, Comments comment);
 
     boolean existsByUserAndComment(Users user, Comments comment);
+
+    long countByComment(Comments comment);
+
+    List<LikeComment> findByComment(Comments comments);
 
 }
 

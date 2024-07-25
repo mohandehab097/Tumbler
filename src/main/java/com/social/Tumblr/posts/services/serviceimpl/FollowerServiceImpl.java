@@ -8,6 +8,7 @@ import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.services.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,6 @@ public class FollowerServiceImpl implements FollowerService {
     private UserService userService;
 
 
-
     @Transactional
     public boolean followUser(Principal currentUser, Integer userId) {
 
@@ -38,28 +38,21 @@ public class FollowerServiceImpl implements FollowerService {
 
         Optional<Follower> existingFollower = followerRepository.findByFollowerAndFollowing(follower, following);
         if (existingFollower.isPresent()) {
-            return false; // Already following
+            followerRepository.delete(existingFollower.get());
+            return false;
         }
 
-        Follower newFollower = new Follower();
-        newFollower.setFollower(follower);
-        newFollower.setFollowing(following);
-        followerRepository.save(newFollower);
+        try {
+            Follower newFollower = new Follower();
+            newFollower.setFollower(follower);
+            newFollower.setFollowing(following);
+            followerRepository.save(newFollower);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("User has already liked this post", e);
+        }
         return true;
     }
 
-
-    @Transactional
-    public boolean unfollowUser(Principal currentUser, Integer userId) {
-        Users follower = getUserFromPrincipal(currentUser);
-        Users following = userService.getUserById(userId);
-        Optional<Follower> existingFollower = followerRepository.findByFollowerAndFollowing(follower, following);
-        if (existingFollower.isPresent()) {
-            followerRepository.delete(existingFollower.get());
-            return true;
-        }
-        return false;
-    }
 
     public boolean isFollowing(Principal currentUser, Integer userId) {
         Users follower = getUserFromPrincipal(currentUser);

@@ -16,6 +16,7 @@ public class PostResponseDto {
     private int numberOfComments;
     private List<CommentResponseDto> comments;
     private boolean isLiked;
+    private List<LikeResponseDto> likeResponseDtos;
 
     public Long getId() {
         return id;
@@ -103,6 +104,14 @@ public class PostResponseDto {
 
     public void setTimeAgo(String timeAgo) {
         this.timeAgo = timeAgo;
+    }
+
+    public List<LikeResponseDto> getLikeResponseDtos() {
+        return likeResponseDtos;
+    }
+
+    public void setLikeResponseDtos(List<LikeResponseDto> likeResponseDtos) {
+        this.likeResponseDtos = likeResponseDtos;
     }
 }
 

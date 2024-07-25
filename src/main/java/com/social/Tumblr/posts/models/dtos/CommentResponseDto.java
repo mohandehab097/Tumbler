@@ -1,6 +1,7 @@
 package com.social.Tumblr.posts.models.dtos;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CommentResponseDto {
 
@@ -11,7 +12,8 @@ public class CommentResponseDto {
     private String userImage;
     private String timeAgo;
     private boolean isLiked;
-
+    private long numberOfLikes;
+    private List<LikeResponseDto> likeResponseDtos;
 
     public Long getId() {
         return id;
@@ -67,5 +69,21 @@ public class CommentResponseDto {
 
     public void setLiked(boolean liked) {
         isLiked = liked;
+    }
+
+    public long getNumberOfLikes() {
+        return numberOfLikes;
+    }
+
+    public void setNumberOfLikes(long numberOfLikes) {
+        this.numberOfLikes = numberOfLikes;
+    }
+
+    public List<LikeResponseDto> getLikeResponseDtos() {
+        return likeResponseDtos;
+    }
+
+    public void setLikeResponseDtos(List<LikeResponseDto> likeResponseDtos) {
+        this.likeResponseDtos = likeResponseDtos;
     }
 }

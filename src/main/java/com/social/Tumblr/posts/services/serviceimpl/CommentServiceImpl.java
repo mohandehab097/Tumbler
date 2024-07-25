@@ -4,6 +4,7 @@ import com.social.Tumblr.posts.exceptions.ResourceNotFoundException;
 import com.social.Tumblr.posts.exceptions.UnauthorizedException;
 import com.social.Tumblr.posts.models.dtos.CommentRequestDto;
 import com.social.Tumblr.posts.models.dtos.CommentResponseDto;
+import com.social.Tumblr.posts.models.dtos.LikeResponseDto;
 import com.social.Tumblr.posts.models.entities.Comments;
 import com.social.Tumblr.posts.models.entities.LikeComment;
 import com.social.Tumblr.posts.models.entities.Likes;
@@ -13,6 +14,7 @@ import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
 import com.social.Tumblr.posts.services.service.CommentService;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
+import com.social.Tumblr.posts.services.service.LikeService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
 import com.social.Tumblr.security.utils.TimeUtil;
@@ -46,6 +48,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Autowired
     private GoogleCloudStorageService googleCloudStorageService;
+
+    @Autowired
+    private LikeService likeService;
 
     public void addComment(Principal currentUser, Long postId, CommentRequestDto commentRequestDto) {
         Users user = getUserFromPrincipal(currentUser);
@@ -84,15 +89,15 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.delete(comment);
     }
 
-    public List<CommentResponseDto> getCommentsForPost(Long postId,Principal currentUser) {
+    public List<CommentResponseDto> getCommentsForPost(Long postId, Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         return commentRepository.findByPostId(postId).stream()
-                .map(comment-> mapCommentToResponseDto(comment,user))
+                .map(comment -> mapCommentToResponseDto(comment, user))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void likeComment(Long commentId, Principal currentUser) {
+    public boolean likeComment(Long commentId, Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         Comments comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
@@ -100,6 +105,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<LikeComment> existingLike = likeCommentRepository.findByUserAndComment(user, comment);
         if (existingLike.isPresent()) {
             likeCommentRepository.delete(existingLike.get());
+            return false;
         } else {
             try {
                 LikeComment like = new LikeComment();
@@ -110,12 +116,12 @@ public class CommentServiceImpl implements CommentService {
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this comment", e);
             }
-
         }
+        return true;
     }
 
 
-    private CommentResponseDto mapCommentToResponseDto(Comments comment,Users currentUser) {
+    public CommentResponseDto mapCommentToResponseDto(Comments comment, Users currentUser) {
         CommentResponseDto dto = new CommentResponseDto();
         dto.setId(comment.getId());
         dto.setContent(comment.getContent());
@@ -123,6 +129,9 @@ public class CommentServiceImpl implements CommentService {
         dto.setUsername(comment.getUser().getFullName());
         dto.setTimeAgo(TimeUtil.calculateTimeAgo(comment.getCreatedAtDate()));
         dto.setLiked(isCommentLikedByUser(comment, currentUser));
+        dto.setNumberOfLikes(likeCommentRepository.countByComment(comment));
+        dto.setLikeResponseDtos(likeCommentRepository.findByComment(comment).stream().map(likeComment -> likeService.mapLikesToResponseDto(likeComment.getId(), likeComment.getUser())).collect(Collectors.toList()));
+
 
         if (comment.getUser().getImage() != null) {
             String userImage = googleCloudStorageService.getFileUrl(comment.getUser().getImage());
@@ -131,6 +140,7 @@ public class CommentServiceImpl implements CommentService {
 
         return dto;
     }
+
     private boolean isCommentLikedByUser(Comments comment, Users user) {
         return likeCommentRepository.existsByUserAndComment(user, comment);
     }
@@ -138,6 +148,7 @@ public class CommentServiceImpl implements CommentService {
     private Users getUserFromPrincipal(Principal currentUser) {
         return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
     }
+
 }
 
 
