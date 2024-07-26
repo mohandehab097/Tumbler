@@ -91,16 +91,27 @@ public class UserServiceImpl implements UserService {
         return userProfileDto;
     }
 
-    @Override
-    public UserProfileResponseDto getUserProfile(Principal currentUser, Integer userId) {
 
+    @Override
+    public UserProfileResponseDto getSearchUserProfile(Principal currentUser, Integer userId) {
+        return getUserProfile(currentUser, userId, true);
+    }
+
+    @Override
+    public UserProfileResponseDto getPostUserProfile(Principal currentUser, Integer userId) {
+        return getUserProfile(currentUser, userId, false);
+    }
+
+    private UserProfileResponseDto getUserProfile(Principal currentUser, Integer userId, boolean isSearch) {
         Users currentUserObject = getUserFromPrincipal(currentUser);
 
         Users searchedUserProfile = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
         UserProfileResponseDto userProfileDto = userMapper.mapUserToUserProfile(searchedUserProfile);
 
-        saveRecentSearch(currentUserObject, searchedUserProfile);
+        if (isSearch) {
+            saveRecentSearch(currentUserObject, searchedUserProfile);
+        }
 
         if (searchedUserProfile.getImage() != null) {
             String imageUrl = googleCloudStorageService.getFileUrl(searchedUserProfile.getImage());
@@ -113,6 +124,9 @@ public class UserServiceImpl implements UserService {
         userProfileDto.setFollowStatus(getFollowStatus(currentUser, userId));
         return userProfileDto;
     }
+
+
+
 
 
     @Override
@@ -203,6 +217,21 @@ public class UserServiceImpl implements UserService {
 
         userRepository.deleteById(id);
         return "User deleted Successfully";
+    }
+
+    @Override
+    public String deleteRecentSearchUser(Principal currentUser , Integer searchedUserId) {
+        Users user = getUserFromPrincipal(currentUser);
+
+        Optional<RecentUserSearch> recentUserSearch = recentUserSearchRepository.findByUserIdAndSearchedUserId(user.getId(),searchedUserId);
+
+        if (!recentUserSearch.isPresent()) {
+            return "Recent searched User not found";
+        }
+
+
+        recentUserSearchRepository.deleteById(recentUserSearch.get().getId());
+        return "Recent Searched User deleted Successfully";
     }
 
     private boolean checkIsFollow(Principal currentUser, Integer userId) {

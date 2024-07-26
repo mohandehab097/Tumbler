@@ -16,7 +16,9 @@ public interface UserService {
 
     public UserProfileResponseDto getCurrentUserProfile(Principal currentUser);
 
-    public UserProfileResponseDto getUserProfile(Principal currentUser, Integer userId);
+    public UserProfileResponseDto getSearchUserProfile(Principal currentUser, Integer userId);
+
+    public UserProfileResponseDto getPostUserProfile(Principal currentUser, Integer userId);
 
     public void updateUserProfile(UserProfileUpdateRequestDto userProfileUpdateDto, Principal currentUser, MultipartFile imageFile);
 
@@ -27,6 +29,8 @@ public interface UserService {
     public Users getUserById(Integer userId);
 
     public String deleteUserById(Integer id);
+
+    public String deleteRecentSearchUser(Principal currentUser , Integer searchedUserId);
 
 
 }

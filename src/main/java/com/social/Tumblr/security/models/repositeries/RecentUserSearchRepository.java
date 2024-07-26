@@ -13,6 +13,9 @@ import java.util.Optional;
 @Repository
 public interface RecentUserSearchRepository extends JpaRepository<RecentUserSearch,Long> {
 
+
+    void deleteByUserIdAndSearchedUserId(Integer userId,Integer searchedUserId);
+
     List<RecentUserSearch> findByUserIdOrderBySearchTimeDesc(Integer userId);
 
     @Query("SELECT r FROM RecentUserSearch r WHERE r.user.id = :userId AND r.searchedUser.id = :searchedUserId")

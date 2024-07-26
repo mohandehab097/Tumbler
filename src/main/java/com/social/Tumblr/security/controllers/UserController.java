@@ -32,10 +32,20 @@ public class UserController {
         return ResponseEntity.ok(userService.getCurrentUserProfile(currentUser));
     }
 
-    @GetMapping(value = "profile/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserProfile(Principal currentUser,@PathVariable("userId") Integer userId) {
-        return ResponseEntity.ok(userService.getUserProfile(currentUser,userId));
+    @GetMapping(value = "/search/profile/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getSearchUserProfile(Principal currentUser,@PathVariable("userId") Integer userId) {
+        return ResponseEntity.ok(userService.getSearchUserProfile(currentUser,userId));
     }
+    @GetMapping(value = "/post/profile/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPostUserProfile(Principal currentUser,@PathVariable("userId") Integer userId) {
+        return ResponseEntity.ok(userService.getPostUserProfile(currentUser,userId));
+    }
+
+    @DeleteMapping(value = "/recent-search/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteRecentSearch(Principal currentUser,@PathVariable("userId") Integer userId) {
+        return ResponseEntity.ok(userService.deleteRecentSearchUser(currentUser,userId));
+    }
+
 
     @PutMapping("profile")
     public ResponseEntity<?> updateUserProfile(
@@ -59,8 +69,8 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserProfile(@PathVariable("userId") Integer userId) {
+    @DeleteMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteUser(@PathVariable("userId") Integer userId) {
         return ResponseEntity.ok(userService.deleteUserById(userId));
     }
 
