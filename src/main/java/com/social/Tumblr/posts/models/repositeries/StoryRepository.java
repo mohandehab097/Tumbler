@@ -15,4 +15,7 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     @Query("SELECT s FROM Story s WHERE s.user.id IN :userIds AND s.expiresAt > :currentTime")
     List<Story> findAllByUserIdsAndExpiresAtAfter(@Param("userIds") List<Integer> userIds, @Param("currentTime") LocalDateTime currentTime);
 
+    Story findByUserIdAndExpiresAtAfter(Integer userId, LocalDateTime now);
+
+
 }

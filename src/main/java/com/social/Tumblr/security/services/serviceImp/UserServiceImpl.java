@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
             String imageUrl = googleCloudStorageService.getFileUrl(searchedUserProfile.getImage());
             userProfileDto.setImage(imageUrl);
         }
-
+        userProfileDto.setId(searchedUserProfile.getId());
         userProfileDto.setNumberOfFollowers(getNumberOfFollowers(searchedUserProfile));
         userProfileDto.setNumberOfFollowing(getNumberOfFollowing(searchedUserProfile));
         userProfileDto.setNumberOfPosts(getNumberOfPosts(searchedUserProfile));

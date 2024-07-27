@@ -6,7 +6,6 @@ public class ViewsDto {
     private String userImage;
     private boolean isFollow;
     private String timeAgo;
-    private Integer numberOfViews;
 
     public Integer getUserId() {
         return userId;
@@ -48,11 +47,5 @@ public class ViewsDto {
         this.timeAgo = timeAgo;
     }
 
-    public Integer getNumberOfViews() {
-        return numberOfViews;
-    }
 
-    public void setNumberOfViews(Integer numberOfViews) {
-        this.numberOfViews = numberOfViews;
-    }
 }

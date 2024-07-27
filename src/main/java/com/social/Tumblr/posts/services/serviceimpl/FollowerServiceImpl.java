@@ -48,7 +48,7 @@ public class FollowerServiceImpl implements FollowerService {
             newFollower.setFollowing(following);
             followerRepository.save(newFollower);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("User has already liked this post", e);
+            throw new IllegalStateException("User has already followed this user", e);
         }
         return true;
     }

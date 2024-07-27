@@ -77,11 +77,16 @@ public class StoryServiceImpl implements StoryService {
 
         List<Integer> followingUsersIds = followerService.findAllFollowedUserByCurrentUser(user.getId());
         List<Story> stories = storyRepository.findAllByUserIdsAndExpiresAtAfter(followingUsersIds, LocalDateTime.now());
-
+        Story currentUserstory = storyRepository.findByUserIdAndExpiresAtAfter(user.getId(), LocalDateTime.now());
         List<StoryDto> storyDtos = stories.stream()
                 .map(story -> mapStoryToStoryDto(story, user))
                 .sorted(Comparator.comparing(StoryDto::isWatched))
                 .collect(Collectors.toList());
+
+        if (currentUserstory != null) {
+            StoryDto currentUserStoryDto = mapStoryToStoryDto(currentUserstory, user);
+            storyDtos.add(0, currentUserStoryDto);
+        }
 
         return storyDtos;
     }
@@ -97,11 +102,7 @@ public class StoryServiceImpl implements StoryService {
 
         Optional<StoryView> existingView = storyViewRepository.findByStoryAndUser(story, user);
         if (existingView.isEmpty()) {
-            StoryView storyView = new StoryView();
-            storyView.setStory(story);
-            storyView.setUser(user);
-            storyView.setViewedAt(LocalDateTime.now());
-            storyViewRepository.save(storyView);
+            saveStoryView(story, user);
         }
 
         StoryViewDto storyViewDto = mapStoryToStoryViewDto(story);
@@ -125,7 +126,6 @@ public class StoryServiceImpl implements StoryService {
             viewsDto.setUserImage(image);
         }
         Integer numberOfViews = storyViewRepository.countByStory(storyView.getStory());
-        viewsDto.setNumberOfViews(numberOfViews);
         viewsDto.setFollow(followerService.getFollowStatus(currentUser, storyView.getUser().getId()));
         return viewsDto;
     }

@@ -20,6 +20,8 @@ public interface PostRepository extends JpaRepository<Posts, Long>, PagingAndSor
             "(SELECT f.following.id FROM Follower f WHERE f.follower.id = :userId)")
     List<Posts> findPostsByUserIdOrFollowing(@Param("userId") Integer userId);
 
+    List<Posts> findByUserIdOrderByCreatedAtDateDesc(Integer userId);
+
     List<Posts> findByUserId(Integer userId);
 
     Page<Posts> findAllByOrderByCreatedAtDateDesc(Pageable pageable);

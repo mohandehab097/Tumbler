@@ -99,12 +99,12 @@ public class PostServiceImpl implements PostService {
 
     public List<PostResponseDto> getAllPostsForCurrentUser(Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
-        List<Posts> posts = postRepository.findByUserId(user.getId());
+        List<Posts> posts = postRepository.findByUserIdOrderByCreatedAtDateDesc(user.getId());
         return posts.stream().map(post -> mapToPostResponseDto(post, user)).collect(Collectors.toList());
     }
 
     public List<PostResponseDto> getAllPostsForUser(Integer userId, Principal currentUser) {
-        List<Posts> posts = postRepository.findByUserId(userId);
+        List<Posts> posts = postRepository.findByUserIdOrderByCreatedAtDateDesc(userId);
         Users user = getUserFromPrincipal(currentUser);
         return posts.stream().map(post -> mapToPostResponseDto(post, user)).collect(Collectors.toList());
     }
