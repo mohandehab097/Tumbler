@@ -16,7 +16,7 @@ public interface FollowerService {
 
     public boolean isFollowing(Principal currentUser, Integer userId);
 
-    public FollowStatus getFollowStatus(Principal currentUser, Integer userId);
+    public boolean getFollowStatus(Principal currentUser, Integer userId);
 
     public List<Users> getFollowers(Users user);
 
@@ -25,5 +25,7 @@ public interface FollowerService {
     public Long getNumberFollowers(Users user);
 
     public Long getNumberFollowing(Users user);
+
+    public List<Integer> findAllFollowedUserByCurrentUser(Integer currentUserId);
 
 }

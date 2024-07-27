@@ -8,7 +8,7 @@ public class SearchedUsersResponseDto {
     private Integer id;
     private String fullName;
     private String image;
-    private FollowStatus followStatus;
+    private boolean isFollow;
 
     public Integer getId() {
         return id;
@@ -34,11 +34,11 @@ public class SearchedUsersResponseDto {
         this.image = image;
     }
 
-    public FollowStatus getFollowStatus() {
-        return followStatus;
+    public boolean isFollow() {
+        return isFollow;
     }
 
-    public void setFollowStatus(FollowStatus followStatus) {
-        this.followStatus = followStatus;
+    public void setFollow(boolean follow) {
+        isFollow = follow;
     }
 }

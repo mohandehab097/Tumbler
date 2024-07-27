@@ -60,52 +60,47 @@ public class FollowerServiceImpl implements FollowerService {
         return followerRepository.findByFollowerAndFollowing(follower, following).isPresent();
     }
 
-    public FollowStatus getFollowStatus(Principal currentUser, Integer userId) {
+    public boolean getFollowStatus(Principal currentUser, Integer userId) {
         Users currentUserEntity = getUserFromPrincipal(currentUser);
         Users profileUser = userService.getUserById(userId);
 
         boolean isFollowing = followerRepository.existsByFollowerAndFollowing(currentUserEntity, profileUser);
-        boolean isFollowedBy = followerRepository.existsByFollowerAndFollowing(profileUser, currentUserEntity);
 
-        if (isFollowing && isFollowedBy) {
-            return FollowStatus.FOLLOWING;
-        } else if (isFollowing) {
-            return FollowStatus.FOLLOW;
-        } else if (isFollowedBy) {
-            return FollowStatus.FOLLOW_BACK;
-        } else {
-            return FollowStatus.NONE;
-        }
-    }
+        return isFollowing;
+}
 
-    public List<Users> getFollowers(Users user) {
-        List<Follower> followers = followerRepository.findByFollowing(user);
-        return followers.stream()
-                .map(Follower::getFollower)
-                .collect(Collectors.toList());
-    }
+public List<Users> getFollowers(Users user) {
+    List<Follower> followers = followerRepository.findByFollowing(user);
+    return followers.stream()
+            .map(Follower::getFollower)
+            .collect(Collectors.toList());
+}
 
-    public Long getNumberFollowers(Users user) {
-        List<Follower> followers = followerRepository.findByFollowing(user);
-        return followers.stream()
-                .map(Follower::getFollower).count();
-    }
+public Long getNumberFollowers(Users user) {
+    List<Follower> followers = followerRepository.findByFollowing(user);
+    return followers.stream()
+            .map(Follower::getFollower).count();
+}
 
-    public List<Users> getFollowing(Users user) {
-        List<Follower> following = followerRepository.findByFollower(user);
-        return following.stream()
-                .map(Follower::getFollowing)
-                .collect(Collectors.toList());
-    }
+public List<Users> getFollowing(Users user) {
+    List<Follower> following = followerRepository.findByFollower(user);
+    return following.stream()
+            .map(Follower::getFollowing)
+            .collect(Collectors.toList());
+}
 
-    public Long getNumberFollowing(Users user) {
-        List<Follower> following = followerRepository.findByFollower(user);
-        return following.stream()
-                .map(Follower::getFollowing).count();
-    }
+public Long getNumberFollowing(Users user) {
+    List<Follower> following = followerRepository.findByFollower(user);
+    return following.stream()
+            .map(Follower::getFollowing).count();
+}
 
-    private Users getUserFromPrincipal(Principal currentUser) {
-        return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
-    }
+public List<Integer> findAllFollowedUserByCurrentUser(Integer currentUserId) {
+    return followerRepository.findAllFollowedUserByCurrentUser(currentUserId);
+}
+
+private Users getUserFromPrincipal(Principal currentUser) {
+    return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
+}
 
 }

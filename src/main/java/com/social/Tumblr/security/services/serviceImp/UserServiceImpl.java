@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
         userProfileDto.setNumberOfFollowers(getNumberOfFollowers(searchedUserProfile));
         userProfileDto.setNumberOfFollowing(getNumberOfFollowing(searchedUserProfile));
         userProfileDto.setNumberOfPosts(getNumberOfPosts(searchedUserProfile));
-        userProfileDto.setFollowStatus(getFollowStatus(currentUser, userId));
+        userProfileDto.setFollow(getFollowStatus(currentUser, userId));
         return userProfileDto;
     }
 
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
         }
         List<SearchedUsersResponseDto> searchedUser = users.isEmpty() ? Collections.EMPTY_LIST : mapSearchUsersToSearchedUsersDto(users, currentUser);
         for (SearchedUsersResponseDto searchedUsersResponseDto : searchedUser) {
-            searchedUsersResponseDto.setFollowStatus(getFollowStatus(currentUser, searchedUsersResponseDto.getId()));
+            searchedUsersResponseDto.setFollow(getFollowStatus(currentUser, searchedUsersResponseDto.getId()));
         }
 
         return searchedUser;
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
             String imageUrl = googleCloudStorageService.getFileUrl(user.getImage());
             dto.setImage(imageUrl);
         }
-        dto.setFollowStatus(getFollowStatus(currentUser, user.getId()));
+        dto.setFollow(getFollowStatus(currentUser, user.getId()));
 
         return dto;
     }
@@ -185,7 +185,7 @@ public class UserServiceImpl implements UserService {
             String imageUrl = googleCloudStorageService.getFileUrl(searchedUser.getImage());
             dto.setImage(imageUrl);
         }
-        dto.setFollowStatus(getFollowStatus(currentUser, searchedUser.getId()));
+        dto.setFollow(getFollowStatus(currentUser, searchedUser.getId()));
 
         return dto;
     }
@@ -238,7 +238,7 @@ public class UserServiceImpl implements UserService {
         return followerService.isFollowing(currentUser, userId);
     }
 
-    private FollowStatus getFollowStatus(Principal currentUser, Integer userId) {
+    private boolean getFollowStatus(Principal currentUser, Integer userId) {
         return followerService.getFollowStatus(currentUser, userId);
     }
 
