@@ -1,6 +1,7 @@
 package com.social.Tumblr.posts.services.serviceimpl;
 
 import com.social.Tumblr.posts.models.entities.Follower;
+import com.social.Tumblr.posts.models.enums.NotificationType;
 import com.social.Tumblr.posts.models.repositeries.FollowerRepository;
 import com.social.Tumblr.posts.services.service.FollowerService;
 import com.social.Tumblr.posts.services.service.NotificationService;
@@ -29,7 +30,6 @@ public class FollowerServiceImpl implements FollowerService {
     private NotificationService notificationService;
 
 
-
     @Override
     public boolean followUser(Principal currentUser, Integer userId) {
 
@@ -42,7 +42,7 @@ public class FollowerServiceImpl implements FollowerService {
 
         Long existingFollowing = followerRepository.existFollowing(follower.getId(), following.getId());
 
-        if (existingFollowing!=null) {
+        if (existingFollowing != null) {
             followerRepository.deleteById(existingFollowing);
             return false;
         }
@@ -52,7 +52,8 @@ public class FollowerServiceImpl implements FollowerService {
             newFollower.setFollower(follower);
             newFollower.setFollowing(following);
             followerRepository.save(newFollower);
-            notificationService.createNotification(follower, following, null, follower.getFullName() + " started following you.");
+            notificationService.deleteOldNotification(follower.getId(), following.getId(), NotificationType.FOLLOWING.getType());
+            notificationService.createNotification(follower, following, null, follower.getFullName() + " started following you.", NotificationType.FOLLOWING.getType());
 
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("User has already followed this user", e);
@@ -67,11 +68,11 @@ public class FollowerServiceImpl implements FollowerService {
         return followerRepository.findByFollowerAndFollowing(follower, following).isPresent();
     }
 
-    public boolean getFollowStatus(Principal currentUser, Integer userId) {
-        Users currentUserEntity = getUserFromPrincipal(currentUser);
+    public Boolean getFollowStatus(Principal currentUser, Integer userId) {
+            Users currentUserEntity = getUserFromPrincipal(currentUser);
         Users profileUser = userService.getUserById(userId);
 
-        boolean isFollowing = followerRepository.existsByFollowerAndFollowing(currentUserEntity, profileUser);
+        Boolean isFollowing = followerRepository.existsByFollowerAndFollowing(currentUserEntity, profileUser);
 
         return isFollowing;
     }
@@ -94,7 +95,7 @@ public class FollowerServiceImpl implements FollowerService {
     }
 
     @Override
-    public List<SearchedUsersResponseDto> getFollowing(Integer userId,Principal currentUser) {
+    public List<SearchedUsersResponseDto> getFollowing(Integer userId, Principal currentUser) {
         Users profileUser = userService.getUserById(userId);
 
         List<Follower> followings = followerRepository.findByFollower(profileUser);
@@ -117,18 +118,18 @@ public class FollowerServiceImpl implements FollowerService {
                 .map(Follower::getFollower).count();
     }
 
-public List<Users> getFollowing(Users user) {
-    List<Follower> following = followerRepository.findByFollower(user);
-    return following.stream()
-            .map(Follower::getFollowing)
-            .collect(Collectors.toList());
-}
+    public List<Users> getFollowing(Users user) {
+        List<Follower> following = followerRepository.findByFollower(user);
+        return following.stream()
+                .map(Follower::getFollowing)
+                .collect(Collectors.toList());
+    }
 
-public Long getNumberFollowing(Users user) {
-    List<Follower> following = followerRepository.findByFollower(user);
-    return following.stream()
-            .map(Follower::getFollowing).count();
-}
+    public Long getNumberFollowing(Users user) {
+        List<Follower> following = followerRepository.findByFollower(user);
+        return following.stream()
+                .map(Follower::getFollowing).count();
+    }
 
     public List<Integer> findAllFollowedUserByCurrentUser(Integer currentUserId) {
         return followerRepository.findAllFollowedUserByCurrentUser(currentUserId);

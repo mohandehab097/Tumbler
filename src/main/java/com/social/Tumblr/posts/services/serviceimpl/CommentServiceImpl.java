@@ -68,7 +68,8 @@ public class CommentServiceImpl implements CommentService {
         comment.setPost(post);
         commentRepository.save(comment);
 
-        notificationService.createNotification(user,post.getUser(), post,user.getFullName()+" Commented on your post.");
+        notificationService.deleteOldNotification(user.getId(), post.getUser().getId(), NotificationType.COMMENT.getType());
+        notificationService.createNotification(user,post.getUser(), post,user.getFullName()+" Commented on your post.",NotificationType.COMMENT.getType());
 
     }
 
@@ -121,7 +122,8 @@ public class CommentServiceImpl implements CommentService {
                 like.setComment(comment);
                 like.setCreatedDate(LocalDateTime.now());
                 likeCommentRepository.save(like);
-                notificationService.createNotification(user,comment.getPost().getUser(), comment.getPost(),user.getFullName()+" Liked Your Comment: ");
+                notificationService.deleteOldNotification(user.getId(), comment.getPost().getUser().getId(), NotificationType.LIKE_COMMENT.getType());
+                notificationService.createNotification(user,comment.getPost().getUser(), comment.getPost(),user.getFullName()+" Liked Your Comment: ",NotificationType.LIKE_COMMENT.getType());
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this comment", e);
             }

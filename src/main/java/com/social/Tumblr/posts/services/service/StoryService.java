@@ -1,5 +1,6 @@
 package com.social.Tumblr.posts.services.service;
 
+import com.social.Tumblr.posts.models.dtos.StoryDetailsDto;
 import com.social.Tumblr.posts.models.dtos.StoryDto;
 import com.social.Tumblr.posts.models.dtos.StoryViewDto;
 import com.social.Tumblr.posts.models.dtos.ViewsDto;
@@ -14,7 +15,7 @@ public interface StoryService {
 
     public String createStory(Principal currentUser, MultipartFile image);
 
-    public StoryDto getStoriesFromFollowedUsers(Principal currentUser);
+    public List<StoryDetailsDto> getStoriesFromFollowedUsers(Principal currentUser);
 
     public StoryViewDto getStoryOfUser(Long storyId,Principal currentUser);
 

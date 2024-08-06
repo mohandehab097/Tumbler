@@ -62,7 +62,8 @@ public class LikeServiceImpl implements LikeService {
                 like.setPost(post);
                 likeRepository.save(like);
 
-                notificationService.createNotification(user,postOwner, post,user.getFullName()+" Liked Your Post");
+                notificationService.deleteOldNotification(user.getId(), postOwner.getId(), NotificationType.LIKE.getType());
+                notificationService.createNotification(user,postOwner, post,user.getFullName()+" Liked Your Post",NotificationType.LIKE.getType());
 
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this post", e);

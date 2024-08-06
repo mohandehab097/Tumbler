@@ -1,13 +1,12 @@
 package com.social.Tumblr.security.models.dtos.response;
 
 
-
 public class SearchedUsersResponseDto {
 
     private Integer id;
     private String fullName;
     private String image;
-    private boolean isFollow;
+    private Boolean isFollow;
 
     public Integer getId() {
         return id;
@@ -33,11 +32,11 @@ public class SearchedUsersResponseDto {
         this.image = image;
     }
 
-    public boolean isFollow() {
+    public Boolean getFollow() {
         return isFollow;
     }
 
-    public void setFollow(boolean follow) {
+    public void setFollow(Boolean follow) {
         isFollow = follow;
     }
 }

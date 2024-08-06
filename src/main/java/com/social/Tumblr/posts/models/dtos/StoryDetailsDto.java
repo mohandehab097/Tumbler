@@ -11,6 +11,19 @@ public class StoryDetailsDto {
     private boolean isWatched;
 
 
+    public StoryDetailsDto() {
+    }
+
+    public StoryDetailsDto(Long storyId, String storyImage, Integer userId, String username, String userImage, String timeAgo, boolean isWatched) {
+        this.storyId = storyId;
+        this.storyImage = storyImage;
+        this.userId = userId;
+        this.username = username;
+        this.userImage = userImage;
+        this.timeAgo = timeAgo;
+        this.isWatched = isWatched;
+    }
+
     public Long getStoryId() {
         return storyId;
     }

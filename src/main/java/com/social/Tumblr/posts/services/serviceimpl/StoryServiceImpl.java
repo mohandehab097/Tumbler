@@ -73,10 +73,9 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StoryDto getStoriesFromFollowedUsers(Principal currentUser) {
+    public List<StoryDetailsDto> getStoriesFromFollowedUsers(Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
-        boolean isStoryUploaded;
-        StoryDto storyDto = new StoryDto();
+        StoryDetailsDto currentUserStoryDto = null;
         List<Integer> followingUsersIds = followerService.findAllFollowedUserByCurrentUser(user.getId());
         List<Story> stories = storyRepository.findAllByUserIdsAndExpiresAtAfter(followingUsersIds, LocalDateTime.now());
         Story currentUserstory = storyRepository.findByUserIdAndExpiresAtAfter(user.getId(), LocalDateTime.now());
@@ -87,17 +86,21 @@ public class StoryServiceImpl implements StoryService {
 
 
         if (currentUserstory != null) {
-            StoryDetailsDto currentUserStoryDto = mapStoryToStoryDetailsDto(currentUserstory, user);
-            storyDetailsDtos.add(0, currentUserStoryDto);
-            isStoryUploaded = true;
+            currentUserStoryDto = mapStoryToStoryDetailsDto(currentUserstory, user);
         } else {
-            isStoryUploaded = false;
+            currentUserStoryDto = new StoryDetailsDto(null, null, user.getId(), user.getFullName(), getUserImage(user), null, false);
         }
+        storyDetailsDtos.add(0, currentUserStoryDto);
 
-        storyDto.setStoryUploaded(isStoryUploaded);
-        storyDto.setStoryDetails(storyDetailsDtos);
+        return storyDetailsDtos;
+    }
 
-        return storyDto;
+    private String getUserImage(Users user) {
+        if (user.getImage() != null) {
+            String image = googleCloudStorageService.getFileUrl(user.getImage());
+            return image;
+        }
+        return null;
     }
 
     @Override

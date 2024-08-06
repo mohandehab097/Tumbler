@@ -6,6 +6,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "stories")
@@ -29,6 +31,9 @@ public class Story {
 
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
+
+    @OneToMany(mappedBy = "story", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<StoryView> views ;
 
 
     public Long getId() {
@@ -69,5 +74,13 @@ public class Story {
 
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public List<StoryView> getViews() {
+        return views;
+    }
+
+    public void setViews(List<StoryView> views) {
+        this.views = views;
     }
 }

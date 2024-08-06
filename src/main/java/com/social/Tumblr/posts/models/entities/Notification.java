@@ -37,6 +37,9 @@ public class Notification {
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
+    @Column(name = "type", nullable = false)
+    private String type;
+
 
     public Long getId() {
         return id;
@@ -92,6 +95,14 @@ public class Notification {
 
     public void setRead(boolean read) {
         isRead = read;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
 

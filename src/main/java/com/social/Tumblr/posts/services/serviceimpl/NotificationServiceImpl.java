@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private GoogleCloudStorageService googleCloudStorageService;
 
-    public Notification createNotification(Users fromUser, Users toUser, Posts post,String notifcationMessage) {
+    public Notification createNotification(Users fromUser, Users toUser, Posts post, String notifcationMessage, String type) {
         Notification notification = new Notification();
         notification.setFromUser(fromUser);
         notification.setToUser(toUser);
@@ -40,6 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setNotifcationMessage(notifcationMessage);
         notification.setCreatedAt(LocalDateTime.now());
         notification.setRead(false);
+        notification.setType(type);
 
         return notificationRepository.save(notification);
     }
@@ -53,6 +54,10 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteOldNotification(Integer fromUserId, Integer toUserId, String type) {
+        notificationRepository.deleteByFromUserIdAndToUserIdAndType(fromUserId, toUserId, type);
+    }
+
     public void markNotificationAsRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
@@ -63,23 +68,30 @@ public class NotificationServiceImpl implements NotificationService {
     private NotificationDto mapNotificationToDto(Notification notification) {
         NotificationDto dto = new NotificationDto();
         dto.setId(notification.getId());
-        dto.setFromUserId(notification.getFromUser().getId());
-        dto.setFromUserName(notification.getFromUser().getFullName());
-        dto.setToUserId(notification.getToUser().getId());
-        dto.setToUserName(notification.getToUser().getFullName());
-        dto.setPostId(notification.getPost().getId());
+        if (notification.getFromUser() != null) {
+            dto.setFromUserId(notification.getFromUser().getId());
+            dto.setFromUserName(notification.getFromUser().getFullName());
+            if (notification.getFromUser().getImage() != null) {
+                String userImage = googleCloudStorageService.getFileUrl(notification.getFromUser().getImage());
+                dto.setFromUserImage(userImage);
+            }
+        }
+        if (notification.getToUser() != null) {
+            dto.setToUserId(notification.getToUser().getId());
+            dto.setToUserName(notification.getToUser().getFullName());
+        }
+        if (notification.getPost() != null) {
+            dto.setPostId(notification.getPost().getId());
+        }
         dto.setNotificationMessage(notification.getNotifcationMessage());
         dto.setTimeAgo(TimeUtil.calculateTimeAgo(notification.getCreatedAt()));
         dto.setRead(notification.isRead());
 
-        if (notification.getPost().getImageUrl() != null) {
-            String image = googleCloudStorageService.getFileUrl(notification.getPost().getImageUrl());
-            dto.setPostImage(image);
-        }
-        if (notification.getFromUser().getImage() != null) {
-            String userImage = googleCloudStorageService.getFileUrl(notification.getFromUser().getImage());
-            dto.setFromUserImage(userImage);
-
+        if (notification.getPost() != null) {
+            if (notification.getPost().getImageUrl() != null) {
+                String image = googleCloudStorageService.getFileUrl(notification.getPost().getImageUrl());
+                dto.setPostImage(image);
+            }
         }
 
         return dto;

@@ -1,5 +1,6 @@
 package com.social.Tumblr.posts.controllers;
 
+import com.social.Tumblr.posts.models.dtos.StoryDetailsDto;
 import com.social.Tumblr.posts.models.dtos.StoryDto;
 import com.social.Tumblr.posts.models.dtos.StoryViewDto;
 import com.social.Tumblr.posts.models.dtos.ViewsDto;
@@ -23,33 +24,33 @@ public class StoryController {
 
     @PostMapping
     public ResponseEntity<String> createStory(
-             Principal currentUser
-            ,@RequestPart(value = "imageFile", required = true)  MultipartFile imageFile) {
+            Principal currentUser
+            , @RequestPart(value = "imageFile", required = true) MultipartFile imageFile) {
         String response = storyService.createStory(currentUser, imageFile);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user/{storyId}")
-    public ResponseEntity<StoryViewDto> getUserViewStory(@PathVariable Long storyId,Principal currentUser) {
-        StoryViewDto story = storyService.getStoryOfUser(storyId,currentUser);
+    public ResponseEntity<StoryViewDto> getUserViewStory(@PathVariable Long storyId, Principal currentUser) {
+        StoryViewDto story = storyService.getStoryOfUser(storyId, currentUser);
         return ResponseEntity.ok(story);
     }
 
     @DeleteMapping("/{storyId}")
-    public ResponseEntity<?> deleteStory(@PathVariable Long storyId,Principal currentUser) {
-         storyService.deleteById(storyId);
+    public ResponseEntity<?> deleteStory(@PathVariable Long storyId, Principal currentUser) {
+        storyService.deleteById(storyId);
         return ResponseEntity.ok("Story deleted successfully");
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<StoryDto> getFollowedUsersStories(Principal currentUser) {
-        StoryDto story = storyService.getStoriesFromFollowedUsers(currentUser);
-        return ResponseEntity.ok(story);
+    public ResponseEntity<List<StoryDetailsDto>> getFollowedUsersStories(Principal currentUser) {
+        List<StoryDetailsDto> stories = storyService.getStoriesFromFollowedUsers(currentUser);
+        return ResponseEntity.ok(stories);
     }
 
     @GetMapping("/views/{storyId}")
-    public ResponseEntity<List<ViewsDto>> getStoryViewsDetails(@PathVariable Long storyId,Principal currentUser) {
-        List<ViewsDto> storyViewsDetails = storyService.getStoryViewsDetails(storyId,currentUser);
+    public ResponseEntity<List<ViewsDto>> getStoryViewsDetails(@PathVariable Long storyId, Principal currentUser) {
+        List<ViewsDto> storyViewsDetails = storyService.getStoryViewsDetails(storyId, currentUser);
         return ResponseEntity.ok(storyViewsDetails);
     }
 }

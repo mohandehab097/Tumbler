@@ -10,7 +10,7 @@ public class UserProfileResponseDto {
     private String phoneNumber;
     private String image;
     private String bio;
-    private boolean isFollow;
+    private Boolean isFollow;
     private Long NumberOfFollowers;
     private Long NumberOfFollowing;
     private Long NumberOfPosts;
@@ -64,11 +64,11 @@ public class UserProfileResponseDto {
         this.bio = bio;
     }
 
-    public boolean isFollow() {
+    public Boolean getFollow() {
         return isFollow;
     }
 
-    public void setFollow(boolean follow) {
+    public void setFollow(Boolean follow) {
         isFollow = follow;
     }
 

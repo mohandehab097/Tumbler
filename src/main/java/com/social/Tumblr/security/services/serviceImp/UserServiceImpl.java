@@ -242,7 +242,7 @@ public class UserServiceImpl implements UserService {
         return followerService.isFollowing(currentUser, userId);
     }
 
-    private boolean getFollowStatus(Principal currentUser, Integer userId) {
+    private Boolean getFollowStatus(Principal currentUser, Integer userId) {
         return followerService.getFollowStatus(currentUser, userId);
     }
 
