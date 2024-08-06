@@ -20,4 +20,6 @@ public interface StoryService {
 
     public List<ViewsDto> getStoryViewsDetails(Long storyId , Principal currentUser);
 
+    public void deleteById(Long storyId);
+
 }

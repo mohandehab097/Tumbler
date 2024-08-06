@@ -1,7 +1,6 @@
 package com.social.Tumblr.posts.models.repositeries;
 
 import com.social.Tumblr.posts.models.entities.Follower;
-import com.social.Tumblr.posts.models.entities.Story;
 import com.social.Tumblr.security.models.entities.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +12,10 @@ import java.util.Optional;
 public interface FollowerRepository extends JpaRepository<Follower, Long> {
 
     Optional<Follower> findByFollowerAndFollowing(Users follower, Users following);
+
+    @Query("SELECT f.id FROM Follower f WHERE f.follower.id = :followerId and f.following.id = :followingId")
+    Long existFollowing(Integer followerId, Integer followingId);
+
 
     boolean existsByFollowerAndFollowing(Users follower, Users following);
 

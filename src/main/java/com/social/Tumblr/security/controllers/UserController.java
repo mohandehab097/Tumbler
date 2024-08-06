@@ -74,4 +74,10 @@ public class UserController {
         return ResponseEntity.ok(userService.deleteUserById(userId));
     }
 
+
+    @GetMapping(value = "/notification-profile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserProfileFromNotification(Principal currentUser,
+                                                            @RequestParam("userId") Integer userId,@RequestParam("notificationId") Long notificationId) {
+        return ResponseEntity.ok(userService.getUserProfileFromNotification(currentUser,userId,notificationId));
+    }
 }

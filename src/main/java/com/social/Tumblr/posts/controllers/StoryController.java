@@ -35,6 +35,12 @@ public class StoryController {
         return ResponseEntity.ok(story);
     }
 
+    @DeleteMapping("/{storyId}")
+    public ResponseEntity<?> deleteStory(@PathVariable Long storyId,Principal currentUser) {
+         storyService.deleteById(storyId);
+        return ResponseEntity.ok("Story deleted successfully");
+    }
+
     @GetMapping("/followers")
     public ResponseEntity<List<StoryDto>> getFollowedUsersStories(Principal currentUser) {
         List<StoryDto> stories = storyService.getStoriesFromFollowedUsers(currentUser);

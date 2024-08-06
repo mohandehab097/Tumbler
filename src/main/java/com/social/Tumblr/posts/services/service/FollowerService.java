@@ -2,6 +2,7 @@ package com.social.Tumblr.posts.services.service;
 
 import com.social.Tumblr.posts.models.entities.Follower;
 import com.social.Tumblr.posts.models.enums.FollowStatus;
+import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
 import com.social.Tumblr.security.models.entities.Users;
 import jakarta.transaction.Transactional;
 
@@ -18,9 +19,9 @@ public interface FollowerService {
 
     public boolean getFollowStatus(Principal currentUser, Integer userId);
 
-    public List<Users> getFollowers(Users user);
+    public List<SearchedUsersResponseDto> getFollowers(Integer userId, Principal currentUser);
 
-    public List<Users> getFollowing(Users user);
+    public List<SearchedUsersResponseDto> getFollowing(Integer userId,Principal currentUser);
 
     public Long getNumberFollowers(Users user);
 

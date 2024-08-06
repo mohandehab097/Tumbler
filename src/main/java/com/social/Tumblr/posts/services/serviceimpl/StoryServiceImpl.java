@@ -1,5 +1,6 @@
 package com.social.Tumblr.posts.services.serviceimpl;
 
+import com.social.Tumblr.posts.models.dtos.StoryDetailsDto;
 import com.social.Tumblr.posts.models.dtos.StoryDto;
 import com.social.Tumblr.posts.models.dtos.StoryViewDto;
 import com.social.Tumblr.posts.models.dtos.ViewsDto;
@@ -74,19 +75,29 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public List<StoryDto> getStoriesFromFollowedUsers(Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
-
+        boolean isStoryUploaded;
+        List<StoryDto> storyDtos = new ArrayList<>();
         List<Integer> followingUsersIds = followerService.findAllFollowedUserByCurrentUser(user.getId());
         List<Story> stories = storyRepository.findAllByUserIdsAndExpiresAtAfter(followingUsersIds, LocalDateTime.now());
         Story currentUserstory = storyRepository.findByUserIdAndExpiresAtAfter(user.getId(), LocalDateTime.now());
-        List<StoryDto> storyDtos = stories.stream()
-                .map(story -> mapStoryToStoryDto(story, user))
-                .sorted(Comparator.comparing(StoryDto::isWatched))
+        List<StoryDetailsDto> storyDetailsDtos = stories.stream()
+                .map(story -> mapStoryToStoryDetailsDto(story, user))
+                .sorted(Comparator.comparing(StoryDetailsDto::isWatched))
                 .collect(Collectors.toList());
 
+
         if (currentUserstory != null) {
-            StoryDto currentUserStoryDto = mapStoryToStoryDto(currentUserstory, user);
-            storyDtos.add(0, currentUserStoryDto);
+            StoryDetailsDto currentUserStoryDto = mapStoryToStoryDetailsDto(currentUserstory, user);
+            storyDetailsDtos.add(0, currentUserStoryDto);
+            isStoryUploaded = true;
+        } else {
+            isStoryUploaded = false;
         }
+        StoryDto storyDto = new StoryDto();
+        storyDto.setStoryUploaded(isStoryUploaded);
+        storyDto.setStoryDetails(storyDetailsDtos);
+        storyDtos.add(storyDto);
+
 
         return storyDtos;
     }
@@ -101,38 +112,44 @@ public class StoryServiceImpl implements StoryService {
         }
 
         Optional<StoryView> existingView = storyViewRepository.findByStoryAndUser(story, user);
-        if (existingView.isEmpty()) {
+        if (existingView.isEmpty() && !story.getUser().getId().equals(user.getId())) {
             saveStoryView(story, user);
         }
 
-        StoryViewDto storyViewDto = mapStoryToStoryViewDto(story);
+        StoryViewDto storyViewDto = mapStoryToStoryViewDto(story, user);
 
         return storyViewDto;
     }
 
     public List<ViewsDto> getStoryViewsDetails(Long storyId, Principal currentUser) {
+        Story story = storyRepository.findByIdAndExpiresAtAfter(storyId, LocalDateTime.now());
+        Users user = getUserFromPrincipal(currentUser);
         List<StoryView> views = storyViewRepository.findAllByStoryId(storyId);
-        List<ViewsDto> viewsDtos = views.stream().map(storyView -> mapToStoryView(storyView, currentUser)).collect(Collectors.toList());
+        List<ViewsDto> viewsDtos = new ArrayList<>();
+        if (story.getUser().getId().equals(user.getId())) {
+            viewsDtos = views.stream().map(storyView -> mapToStoryView(storyView, currentUser)).collect(Collectors.toList());
+        }
         return viewsDtos;
     }
 
     private ViewsDto mapToStoryView(StoryView storyView, Principal currentUser) {
+
         ViewsDto viewsDto = new ViewsDto();
-        viewsDto.setUserId(storyView.getUser().getId());
-        viewsDto.setUsername(storyView.getUser().getFullName());
+        viewsDto.setId(storyView.getUser().getId());
+        viewsDto.setFullName(storyView.getUser().getFullName());
         viewsDto.setTimeAgo(TimeUtil.calculateTimeAgo(storyView.getViewedAt()));
         if (storyView.getUser().getImage() != null) {
             String image = googleCloudStorageService.getFileUrl(storyView.getUser().getImage());
-            viewsDto.setUserImage(image);
+            viewsDto.setImage(image);
         }
         Integer numberOfViews = storyViewRepository.countByStory(storyView.getStory());
         viewsDto.setFollow(followerService.getFollowStatus(currentUser, storyView.getUser().getId()));
         return viewsDto;
     }
 
-    private StoryViewDto mapStoryToStoryViewDto(Story story) {
+    private StoryViewDto mapStoryToStoryViewDto(Story story, Users currentUser) {
         StoryViewDto storyViewDto = new StoryViewDto();
-
+        storyViewDto.setId(story.getId());
         if (story.getImage() != null) {
             String storyImage = googleCloudStorageService.getFileUrl(story.getImage());
             storyViewDto.setStoryImage(storyImage);
@@ -146,33 +163,36 @@ public class StoryServiceImpl implements StoryService {
             storyViewDto.setUserImage(image);
         }
 
-        Integer numberOfViews = storyViewRepository.countByStory(story);
-        storyViewDto.setNumberOfViews(numberOfViews);
+        if (story.getUser().getId().equals(currentUser.getId())) {
+            Integer numberOfViews = storyViewRepository.countByStory(story);
+            storyViewDto.setNumberOfViews(numberOfViews);
+        }
+
 
         return storyViewDto;
     }
 
-    private StoryDto mapStoryToStoryDto(Story story, Users currentUser) {
-        StoryDto storyDto = new StoryDto();
-        storyDto.setStoryId(story.getId());
+    private StoryDetailsDto mapStoryToStoryDetailsDto(Story story, Users currentUser) {
+        StoryDetailsDto storyDetailsDto = new StoryDetailsDto();
+        storyDetailsDto.setStoryId(story.getId());
         if (story.getImage() != null) {
             String storyImage = googleCloudStorageService.getFileUrl(story.getImage());
-            storyDto.setStoryImage(storyImage);
+            storyDetailsDto.setStoryImage(storyImage);
         }
 
-        storyDto.setUserId(story.getUser().getId());
-        storyDto.setUsername(story.getUser().getFullName());
-        storyDto.setTimeAgo(TimeUtil.calculateTimeAgo(story.getCreatedAt()));
+        storyDetailsDto.setUserId(story.getUser().getId());
+        storyDetailsDto.setUsername(story.getUser().getFullName());
+        storyDetailsDto.setTimeAgo(TimeUtil.calculateTimeAgo(story.getCreatedAt()));
         if (story.getUser().getImage() != null) {
             String image = googleCloudStorageService.getFileUrl(story.getUser().getImage());
-            storyDto.setUserImage(image);
+            storyDetailsDto.setUserImage(image);
         }
         Optional<StoryView> existingView = storyViewRepository.findByStoryAndUser(story, currentUser);
 
 
-        storyDto.setWatched(existingView.isPresent());
+        storyDetailsDto.setWatched(existingView.isPresent());
 
-        return storyDto;
+        return storyDetailsDto;
     }
 
     private void saveStoryView(Story story, Users user) {
@@ -185,6 +205,14 @@ public class StoryServiceImpl implements StoryService {
 
     private Users getUserFromPrincipal(Principal currentUser) {
         return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
+    }
+
+    @Override
+    public void deleteById(Long storyId) {
+        storyRepository.findById(storyId).orElseThrow(() ->
+                new EntityNotFoundException("Story Id Not Found"));
+
+        storyRepository.deleteById(storyId);
     }
 
 

@@ -1,20 +1,21 @@
 package com.social.Tumblr.posts.services.serviceimpl;
 
 import com.social.Tumblr.posts.models.entities.Follower;
-import com.social.Tumblr.posts.models.enums.FollowStatus;
 import com.social.Tumblr.posts.models.repositeries.FollowerRepository;
 import com.social.Tumblr.posts.services.service.FollowerService;
+import com.social.Tumblr.posts.services.service.NotificationService;
+import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.services.service.UserService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,9 +25,12 @@ public class FollowerServiceImpl implements FollowerService {
     private FollowerRepository followerRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private NotificationService notificationService;
 
 
-    @Transactional
+
+    @Override
     public boolean followUser(Principal currentUser, Integer userId) {
 
         Users follower = getUserFromPrincipal(currentUser);
@@ -36,9 +40,10 @@ public class FollowerServiceImpl implements FollowerService {
             throw new IllegalArgumentException("Cannot follow yourself");
         }
 
-        Optional<Follower> existingFollower = followerRepository.findByFollowerAndFollowing(follower, following);
-        if (existingFollower.isPresent()) {
-            followerRepository.delete(existingFollower.get());
+        Long existingFollowing = followerRepository.existFollowing(follower.getId(), following.getId());
+
+        if (existingFollowing!=null) {
+            followerRepository.deleteById(existingFollowing);
             return false;
         }
 
@@ -47,6 +52,8 @@ public class FollowerServiceImpl implements FollowerService {
             newFollower.setFollower(follower);
             newFollower.setFollowing(following);
             followerRepository.save(newFollower);
+            notificationService.createNotification(follower, following, null, follower.getFullName() + " started following you.");
+
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("User has already followed this user", e);
         }
@@ -67,20 +74,48 @@ public class FollowerServiceImpl implements FollowerService {
         boolean isFollowing = followerRepository.existsByFollowerAndFollowing(currentUserEntity, profileUser);
 
         return isFollowing;
-}
+    }
 
-public List<Users> getFollowers(Users user) {
-    List<Follower> followers = followerRepository.findByFollowing(user);
-    return followers.stream()
-            .map(Follower::getFollower)
-            .collect(Collectors.toList());
-}
 
-public Long getNumberFollowers(Users user) {
-    List<Follower> followers = followerRepository.findByFollowing(user);
-    return followers.stream()
-            .map(Follower::getFollower).count();
-}
+    @Override
+    public List<SearchedUsersResponseDto> getFollowers(Integer userId, Principal currentUser) {
+        Users profileUser = userService.getUserById(userId);
+
+        List<Follower> followers = followerRepository.findByFollowing(profileUser);
+
+        if (followers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return followers.stream()
+                .map(Follower::getFollower)
+                .map(follower -> userService.mapUserSearchToSearchedUserDto(follower, currentUser))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SearchedUsersResponseDto> getFollowing(Integer userId,Principal currentUser) {
+        Users profileUser = userService.getUserById(userId);
+
+        List<Follower> followings = followerRepository.findByFollower(profileUser);
+
+        if (followings.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return followings.stream()
+                .map(Follower::getFollowing)
+                .map(following -> userService.mapUserSearchToSearchedUserDto(following, currentUser))
+                .collect(Collectors.toList());
+
+    }
+
+
+    public Long getNumberFollowers(Users user) {
+        List<Follower> followers = followerRepository.findByFollowing(user);
+        return followers.stream()
+                .map(Follower::getFollower).count();
+    }
 
 public List<Users> getFollowing(Users user) {
     List<Follower> following = followerRepository.findByFollower(user);
@@ -95,12 +130,12 @@ public Long getNumberFollowing(Users user) {
             .map(Follower::getFollowing).count();
 }
 
-public List<Integer> findAllFollowedUserByCurrentUser(Integer currentUserId) {
-    return followerRepository.findAllFollowedUserByCurrentUser(currentUserId);
-}
+    public List<Integer> findAllFollowedUserByCurrentUser(Integer currentUserId) {
+        return followerRepository.findAllFollowedUserByCurrentUser(currentUserId);
+    }
 
-private Users getUserFromPrincipal(Principal currentUser) {
-    return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
-}
+    private Users getUserFromPrincipal(Principal currentUser) {
+        return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
+    }
 
 }

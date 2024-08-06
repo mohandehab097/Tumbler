@@ -14,10 +14,7 @@ import com.social.Tumblr.posts.models.repositeries.CommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
-import com.social.Tumblr.posts.services.service.CommentService;
-import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
-import com.social.Tumblr.posts.services.service.LikeService;
-import com.social.Tumblr.posts.services.service.PostService;
+import com.social.Tumblr.posts.services.service.*;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
 import com.social.Tumblr.security.services.service.ImagesService;
@@ -58,7 +55,8 @@ public class PostServiceImpl implements PostService {
     private LikeService likeService;
     @Autowired
     private CommentService commentService;
-
+    @Autowired
+    private NotificationService notificationService;
 
     public void createPost(Principal currentUser, String content, MultipartFile postImage) {
         Users user = getUserFromPrincipal(currentUser);
@@ -116,6 +114,12 @@ public class PostServiceImpl implements PostService {
         return mapToPostResponseDto(post, user);
     }
 
+    public PostResponseDto getPostByIdFromNotification(Long postId, Long notificationId, Principal currentUser) {
+        PostResponseDto postResponseDto = getPostById(postId, currentUser);
+        notificationService.markNotificationAsRead(notificationId);
+        return postResponseDto;
+    }
+
     public Long getNumberOfPosts(Users users) {
         List<Posts> posts = postRepository.findByUserId(users.getId());
         return (long) posts.size();
@@ -157,7 +161,7 @@ public class PostServiceImpl implements PostService {
         postResponseDto.setNumberOfComments(commentRepository.countByPostId(post.getId()));
         postResponseDto.setComments(post.getComments().stream().map(comment -> commentService.mapCommentToResponseDto(comment, currentUser)).collect(Collectors.toList()));
         postResponseDto.setLiked(isPostLikedByUser(post, currentUser));
-        postResponseDto.setLikeResponseDtos(post.getLikes().stream().map(like -> likeService.mapLikesToResponseDto(like.getId(),like.getUser())).collect(Collectors.toList()));
+        postResponseDto.setLikeResponseDtos(post.getLikes().stream().map(like -> likeService.mapLikesToResponseDto(like.getId(), like.getUser())).collect(Collectors.toList()));
         return postResponseDto;
     }
 

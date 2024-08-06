@@ -1,22 +1,22 @@
 package com.social.Tumblr.posts.models.dtos;
 
-public class StoryViewDto {
+public class StoryDetailsDto {
 
-    private Long id;
+    private Long storyId;
     private String storyImage;
     private Integer userId;
     private String username;
     private String userImage;
-    private Integer numberOfViews;
     private String timeAgo;
+    private boolean isWatched;
 
 
-    public Long getId() {
-        return id;
+    public Long getStoryId() {
+        return storyId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setStoryId(Long storyId) {
+        this.storyId = storyId;
     }
 
     public String getStoryImage() {
@@ -51,19 +51,19 @@ public class StoryViewDto {
         this.userImage = userImage;
     }
 
-    public Integer getNumberOfViews() {
-        return numberOfViews;
-    }
-
-    public void setNumberOfViews(Integer numberOfViews) {
-        this.numberOfViews = numberOfViews;
-    }
-
     public String getTimeAgo() {
         return timeAgo;
     }
 
     public void setTimeAgo(String timeAgo) {
         this.timeAgo = timeAgo;
+    }
+
+    public boolean isWatched() {
+        return isWatched;
+    }
+
+    public void setWatched(boolean watched) {
+        isWatched = watched;
     }
 }

@@ -19,15 +19,16 @@ public interface PostService {
 
     public List<PostResponseDto> getAllPostsForCurrentUser(Principal currentUser);
 
-    public List<PostResponseDto> getAllPostsForUser(Integer userId,Principal currentUser);
+    public List<PostResponseDto> getAllPostsForUser(Integer userId, Principal currentUser);
 
-    public PostResponseDto getPostById(Long postId,Principal currentUser);
+    public PostResponseDto getPostById(Long postId, Principal currentUser);
 
     public Long getNumberOfPosts(Users users);
 
     public List<PostResponseDto> getPostsOfCurrentUserAndFollowers(Principal currentUser);
 
-    public List<PostResponseDto> getAllPostsWithPagination(int page, int size,Principal currentUser);
+    public List<PostResponseDto> getAllPostsWithPagination(int page, int size, Principal currentUser);
 
+    public PostResponseDto getPostByIdFromNotification(Long postId, Long notificationId, Principal currentUser);
 
-    }
+}

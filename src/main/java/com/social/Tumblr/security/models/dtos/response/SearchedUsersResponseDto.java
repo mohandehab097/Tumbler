@@ -1,7 +1,6 @@
 package com.social.Tumblr.security.models.dtos.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.social.Tumblr.posts.models.enums.FollowStatus;
+
 
 public class SearchedUsersResponseDto {
 

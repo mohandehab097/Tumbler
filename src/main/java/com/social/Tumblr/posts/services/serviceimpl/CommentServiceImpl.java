@@ -9,12 +9,14 @@ import com.social.Tumblr.posts.models.entities.Comments;
 import com.social.Tumblr.posts.models.entities.LikeComment;
 import com.social.Tumblr.posts.models.entities.Likes;
 import com.social.Tumblr.posts.models.entities.Posts;
+import com.social.Tumblr.posts.models.enums.NotificationType;
 import com.social.Tumblr.posts.models.repositeries.CommentRepository;
 import com.social.Tumblr.posts.models.repositeries.LikeCommentRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
 import com.social.Tumblr.posts.services.service.CommentService;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
 import com.social.Tumblr.posts.services.service.LikeService;
+import com.social.Tumblr.posts.services.service.NotificationService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
 import com.social.Tumblr.security.utils.TimeUtil;
@@ -52,6 +54,9 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public void addComment(Principal currentUser, Long postId, CommentRequestDto commentRequestDto) {
         Users user = getUserFromPrincipal(currentUser);
         Posts post = postRepository.findById(postId)
@@ -62,6 +67,9 @@ public class CommentServiceImpl implements CommentService {
         comment.setUser(user);
         comment.setPost(post);
         commentRepository.save(comment);
+
+        notificationService.createNotification(user,post.getUser(), post,user.getFullName()+" Commented on your post.");
+
     }
 
     public void editComment(Long commentId, Principal currentUser, CommentRequestDto commentRequestDto) {
@@ -113,6 +121,7 @@ public class CommentServiceImpl implements CommentService {
                 like.setComment(comment);
                 like.setCreatedDate(LocalDateTime.now());
                 likeCommentRepository.save(like);
+                notificationService.createNotification(user,comment.getPost().getUser(), comment.getPost(),user.getFullName()+" Liked Your Comment: ");
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this comment", e);
             }

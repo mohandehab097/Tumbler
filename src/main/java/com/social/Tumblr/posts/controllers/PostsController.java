@@ -5,7 +5,6 @@ import com.social.Tumblr.posts.models.dtos.PostRequestDto;
 import com.social.Tumblr.posts.models.dtos.PostResponseDto;
 import com.social.Tumblr.posts.models.entities.Posts;
 import com.social.Tumblr.posts.services.service.PostService;
-import com.social.Tumblr.security.models.dtos.request.RegisterRequestDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -81,6 +80,13 @@ public class PostsController {
                                                                            @RequestParam(defaultValue = "10") int size) {
         List<PostResponseDto> posts = postService.getAllPostsWithPagination(page,size,currentUser);
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/notification-post")
+    public ResponseEntity<PostResponseDto> getPostByIdFromNotification(Principal currentUser,
+            @RequestParam("postId") Long postId, @RequestParam("notificationId") Long notificationId) {
+        PostResponseDto post = postService.getPostByIdFromNotification(postId,notificationId,currentUser);
+        return ResponseEntity.ok(post);
     }
 
 

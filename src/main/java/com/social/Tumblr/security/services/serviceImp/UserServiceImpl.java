@@ -3,6 +3,7 @@ package com.social.Tumblr.security.services.serviceImp;
 import com.social.Tumblr.posts.models.enums.FollowStatus;
 import com.social.Tumblr.posts.services.service.FollowerService;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
+import com.social.Tumblr.posts.services.service.NotificationService;
 import com.social.Tumblr.posts.services.service.PostService;
 import com.social.Tumblr.security.models.dtos.response.UserProfileResponseDto;
 import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
@@ -66,6 +67,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RecentUserSearchRepository recentUserSearchRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
 
     @Override
@@ -150,7 +154,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    private SearchedUsersResponseDto mapUserSearchToSearchedUserDto(Users user, Principal currentUser) {
+    public SearchedUsersResponseDto mapUserSearchToSearchedUserDto(Users user, Principal currentUser) {
         SearchedUsersResponseDto dto = new SearchedUsersResponseDto();
 
         dto.setId(user.getId());
@@ -299,4 +303,11 @@ public class UserServiceImpl implements UserService {
 
         recentUserSearchRepository.save(recentSearch);
     }
+
+    public UserProfileResponseDto getUserProfileFromNotification(Principal currentUser, Integer userId,Long notificationId){
+        UserProfileResponseDto userProfileResponseDto = getUserProfile(currentUser,userId,false);
+        notificationService.markNotificationAsRead(notificationId);
+        return userProfileResponseDto;
+    }
+
 }

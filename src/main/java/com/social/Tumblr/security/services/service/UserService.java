@@ -30,7 +30,9 @@ public interface UserService {
 
     public String deleteUserById(Integer id);
 
-    public String deleteRecentSearchUser(Principal currentUser , Integer searchedUserId);
+    public String deleteRecentSearchUser(Principal currentUser, Integer searchedUserId);
 
+    public UserProfileResponseDto getUserProfileFromNotification(Principal currentUser, Integer userId, Long notificationId);
 
+    public SearchedUsersResponseDto mapUserSearchToSearchedUserDto(Users user, Principal currentUser);
 }

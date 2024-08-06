@@ -1,34 +1,35 @@
 package com.social.Tumblr.posts.models.dtos;
 
 public class ViewsDto {
-    private Integer userId;
-    private String username;
-    private String userImage;
+    private Integer id;
+    private String fullName;
+    private String image;
     private boolean isFollow;
     private String timeAgo;
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
-    public String getUserImage() {
-        return userImage;
+    public String getImage() {
+        return image;
     }
 
-    public void setUserImage(String userImage) {
-        this.userImage = userImage;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public boolean isFollow() {

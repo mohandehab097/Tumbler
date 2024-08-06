@@ -4,10 +4,12 @@ import com.social.Tumblr.posts.exceptions.ResourceNotFoundException;
 import com.social.Tumblr.posts.models.dtos.LikeResponseDto;
 import com.social.Tumblr.posts.models.entities.Likes;
 import com.social.Tumblr.posts.models.entities.Posts;
+import com.social.Tumblr.posts.models.enums.NotificationType;
 import com.social.Tumblr.posts.models.repositeries.LikeRepository;
 import com.social.Tumblr.posts.models.repositeries.PostRepository;
 import com.social.Tumblr.posts.services.service.GoogleCloudStorageService;
 import com.social.Tumblr.posts.services.service.LikeService;
+import com.social.Tumblr.posts.services.service.NotificationService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
 import org.slf4j.Logger;
@@ -39,6 +41,9 @@ public class LikeServiceImpl implements LikeService {
     @Autowired
     private GoogleCloudStorageService googleCloudStorageService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public void likePost(Principal currentUser, Long postId) {
         Users user = getUserFromPrincipal(currentUser);
         Posts post = postRepository.findById(postId)
@@ -56,16 +61,13 @@ public class LikeServiceImpl implements LikeService {
                 like.setUser(user);
                 like.setPost(post);
                 likeRepository.save(like);
+
+                notificationService.createNotification(user,postOwner, post,user.getFullName()+" Liked Your Post");
+
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this post", e);
             }
         }
-
-        String deviceToken = "your-ios-device-token";
-        String title = "Like notification";
-        String body = user.getFullName() + "liked your post" + post.getId();
-
-//        firebaseMessagingService.sendNotificationToToken(deviceToken, title, body);
     }
 
 
