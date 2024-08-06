@@ -69,7 +69,7 @@ public class FollowerServiceImpl implements FollowerService {
     }
 
     public Boolean getFollowStatus(Principal currentUser, Integer userId) {
-            Users currentUserEntity = getUserFromPrincipal(currentUser);
+        Users currentUserEntity = getUserFromPrincipal(currentUser);
         Users profileUser = userService.getUserById(userId);
 
         Boolean isFollowing = followerRepository.existsByFollowerAndFollowing(currentUserEntity, profileUser);
@@ -81,6 +81,7 @@ public class FollowerServiceImpl implements FollowerService {
     @Override
     public List<SearchedUsersResponseDto> getFollowers(Integer userId, Principal currentUser) {
         Users profileUser = userService.getUserById(userId);
+        Users currentUserEntity = getUserFromPrincipal(currentUser);
 
         List<Follower> followers = followerRepository.findByFollowing(profileUser);
 
@@ -90,13 +91,20 @@ public class FollowerServiceImpl implements FollowerService {
 
         return followers.stream()
                 .map(Follower::getFollower)
-                .map(follower -> userService.mapUserSearchToSearchedUserDto(follower, currentUser))
+                .map(follower -> {
+                    SearchedUsersResponseDto dto = userService.mapUserSearchToSearchedUserDto(follower, currentUser);
+                    if (follower.getId().equals(currentUserEntity.getId())) {
+                        dto.setFollow(null);
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<SearchedUsersResponseDto> getFollowing(Integer userId, Principal currentUser) {
         Users profileUser = userService.getUserById(userId);
+        Users currentUserEntity = getUserFromPrincipal(currentUser);
 
         List<Follower> followings = followerRepository.findByFollower(profileUser);
 
@@ -105,8 +113,14 @@ public class FollowerServiceImpl implements FollowerService {
         }
 
         return followings.stream()
-                .map(Follower::getFollowing)
-                .map(following -> userService.mapUserSearchToSearchedUserDto(following, currentUser))
+                .map(Follower::getFollower)
+                .map(following -> {
+                    SearchedUsersResponseDto dto = userService.mapUserSearchToSearchedUserDto(following, currentUser);
+                    if (following.getId().equals(currentUserEntity.getId())) {
+                        dto.setFollow(null);
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
     }
