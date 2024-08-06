@@ -14,7 +14,7 @@ public interface StoryService {
 
     public String createStory(Principal currentUser, MultipartFile image);
 
-    public List<StoryDto> getStoriesFromFollowedUsers(Principal currentUser);
+    public StoryDto getStoriesFromFollowedUsers(Principal currentUser);
 
     public StoryViewDto getStoryOfUser(Long storyId,Principal currentUser);
 

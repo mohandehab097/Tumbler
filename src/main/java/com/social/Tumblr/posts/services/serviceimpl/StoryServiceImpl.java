@@ -73,10 +73,10 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public List<StoryDto> getStoriesFromFollowedUsers(Principal currentUser) {
+    public StoryDto getStoriesFromFollowedUsers(Principal currentUser) {
         Users user = getUserFromPrincipal(currentUser);
         boolean isStoryUploaded;
-        List<StoryDto> storyDtos = new ArrayList<>();
+        StoryDto storyDto = new StoryDto();
         List<Integer> followingUsersIds = followerService.findAllFollowedUserByCurrentUser(user.getId());
         List<Story> stories = storyRepository.findAllByUserIdsAndExpiresAtAfter(followingUsersIds, LocalDateTime.now());
         Story currentUserstory = storyRepository.findByUserIdAndExpiresAtAfter(user.getId(), LocalDateTime.now());
@@ -93,13 +93,11 @@ public class StoryServiceImpl implements StoryService {
         } else {
             isStoryUploaded = false;
         }
-        StoryDto storyDto = new StoryDto();
+
         storyDto.setStoryUploaded(isStoryUploaded);
         storyDto.setStoryDetails(storyDetailsDtos);
-        storyDtos.add(storyDto);
 
-
-        return storyDtos;
+        return storyDto;
     }
 
     @Override
@@ -190,7 +188,11 @@ public class StoryServiceImpl implements StoryService {
         Optional<StoryView> existingView = storyViewRepository.findByStoryAndUser(story, currentUser);
 
 
-        storyDetailsDto.setWatched(existingView.isPresent());
+        if (story.getUser().getId().equals(currentUser.getId())) {
+            storyDetailsDto.setWatched(false);
+        } else {
+            storyDetailsDto.setWatched(existingView.isPresent());
+        }
 
         return storyDetailsDto;
     }

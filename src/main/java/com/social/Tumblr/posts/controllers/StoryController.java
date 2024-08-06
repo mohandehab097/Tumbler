@@ -42,9 +42,9 @@ public class StoryController {
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<List<StoryDto>> getFollowedUsersStories(Principal currentUser) {
-        List<StoryDto> stories = storyService.getStoriesFromFollowedUsers(currentUser);
-        return ResponseEntity.ok(stories);
+    public ResponseEntity<StoryDto> getFollowedUsersStories(Principal currentUser) {
+        StoryDto story = storyService.getStoriesFromFollowedUsers(currentUser);
+        return ResponseEntity.ok(story);
     }
 
     @GetMapping("/views/{storyId}")
