@@ -113,7 +113,7 @@ public class FollowerServiceImpl implements FollowerService {
         }
 
         return followings.stream()
-                .map(Follower::getFollower)
+                .map(Follower::getFollowing)
                 .map(following -> {
                     SearchedUsersResponseDto dto = userService.mapUserSearchToSearchedUserDto(following, currentUser);
                     if (following.getId().equals(currentUserEntity.getId())) {

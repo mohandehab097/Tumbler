@@ -125,7 +125,12 @@ public class UserServiceImpl implements UserService {
         userProfileDto.setNumberOfFollowers(getNumberOfFollowers(searchedUserProfile));
         userProfileDto.setNumberOfFollowing(getNumberOfFollowing(searchedUserProfile));
         userProfileDto.setNumberOfPosts(getNumberOfPosts(searchedUserProfile));
-        userProfileDto.setFollow(getFollowStatus(currentUser, userId));
+        if(!currentUserObject.getId().equals(userId)){
+            userProfileDto.setFollow(getFollowStatus(currentUser, userId));
+        }
+        else{
+            userProfileDto.setFollow(null);
+        }
         return userProfileDto;
     }
 
