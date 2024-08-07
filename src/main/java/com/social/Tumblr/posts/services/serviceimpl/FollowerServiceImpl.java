@@ -8,6 +8,7 @@ import com.social.Tumblr.posts.services.service.NotificationService;
 import com.social.Tumblr.security.models.dtos.response.SearchedUsersResponseDto;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.services.service.UserService;
+import com.social.Tumblr.security.utils.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,8 +53,9 @@ public class FollowerServiceImpl implements FollowerService {
             newFollower.setFollower(follower);
             newFollower.setFollowing(following);
             followerRepository.save(newFollower);
+            String followerFirstName = Utility.findFirstNameOfUser(follower.getFullName());
             notificationService.deleteOldNotification(follower.getId(), following.getId(), NotificationType.FOLLOWING.getType());
-            notificationService.createNotification(follower, following, null, follower.getFullName() + " started following you.", NotificationType.FOLLOWING.getType());
+            notificationService.createNotification(follower, following, null, followerFirstName + " started following you.", NotificationType.FOLLOWING.getType());
 
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("User has already followed this user", e);

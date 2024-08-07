@@ -22,4 +22,10 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<?> deleteStory(@PathVariable Long notificationId, Principal currentUser) {
+        notificationService.deleteById(notificationId);
+        return ResponseEntity.ok("Story deleted successfully");
+    }
+
 }

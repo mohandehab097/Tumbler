@@ -12,6 +12,7 @@ import com.social.Tumblr.posts.services.service.LikeService;
 import com.social.Tumblr.posts.services.service.NotificationService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
+import com.social.Tumblr.security.utils.Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +63,12 @@ public class LikeServiceImpl implements LikeService {
                 like.setPost(post);
                 likeRepository.save(like);
 
-                notificationService.deleteOldNotification(user.getId(), postOwner.getId(), NotificationType.LIKE.getType());
-                notificationService.createNotification(user,postOwner, post,user.getFullName()+" Liked Your Post",NotificationType.LIKE.getType());
+                if (!postOwner.getId().equals(user.getId())) {
+                   String userFirstName =  Utility.findFirstNameOfUser(user.getFullName());
+                    notificationService.deleteOldPostNotification(user.getId(), postOwner.getId(), postId, NotificationType.LIKE.getType());
+                    notificationService.createNotification(user, postOwner, post,  userFirstName + " Liked Your Post", NotificationType.LIKE.getType());
+                }
+
 
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this post", e);
@@ -76,7 +81,7 @@ public class LikeServiceImpl implements LikeService {
         return (Users) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
     }
 
-    public LikeResponseDto mapLikesToResponseDto(long id,Users user) {
+    public LikeResponseDto mapLikesToResponseDto(long id, Users user) {
         LikeResponseDto likeResponseDto = new LikeResponseDto();
 
         likeResponseDto.setId(id);

@@ -58,11 +58,19 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.deleteByFromUserIdAndToUserIdAndType(fromUserId, toUserId, type);
     }
 
+    public void deleteOldPostNotification(Integer fromUserId, Integer toUserId, Long postId, String type) {
+        notificationRepository.deleteByFromUserIdAndToUserIdAndPostIdAndType(fromUserId, toUserId, postId, type);
+    }
+
     public void markNotificationAsRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
         notification.setRead(true);
         notificationRepository.save(notification);
+    }
+
+    public void deleteById(Long id) {
+        notificationRepository.deleteById(id);
     }
 
     private NotificationDto mapNotificationToDto(Notification notification) {

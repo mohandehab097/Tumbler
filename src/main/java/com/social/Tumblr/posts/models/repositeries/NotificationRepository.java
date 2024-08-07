@@ -18,7 +18,15 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Transactional
     @Modifying
-    @Query(value = "delete from notification where from_user_id =:fromUserId and to_user_id =:toUserId and type=:type",nativeQuery = true)
-    void deleteByFromUserIdAndToUserIdAndType(@Param("fromUserId") Integer fromUserId, @Param("toUserId") Integer toUserId ,@Param("type") String type);
+    @Query(value = "delete from notification where from_user_id =:fromUserId and to_user_id =:toUserId and type=:type", nativeQuery = true)
+    void deleteByFromUserIdAndToUserIdAndType(@Param("fromUserId") Integer fromUserId, @Param("toUserId") Integer toUserId, @Param("type") String type);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from notification where from_user_id =:fromUserId and to_user_id =:toUserId and post_id = :postId and type=:type", nativeQuery = true)
+    void deleteByFromUserIdAndToUserIdAndPostIdAndType(@Param("fromUserId") Integer fromUserId, @Param("toUserId") Integer toUserId
+            , @Param("postId") Long postId
+            , @Param("type") String type);
 
 }

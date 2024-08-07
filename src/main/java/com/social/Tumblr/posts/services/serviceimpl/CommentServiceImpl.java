@@ -20,6 +20,7 @@ import com.social.Tumblr.posts.services.service.NotificationService;
 import com.social.Tumblr.security.models.entities.Users;
 import com.social.Tumblr.security.models.repositeries.UserRepository;
 import com.social.Tumblr.security.utils.TimeUtil;
+import com.social.Tumblr.security.utils.Utility;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -68,9 +69,11 @@ public class CommentServiceImpl implements CommentService {
         comment.setPost(post);
         commentRepository.save(comment);
 
-        notificationService.deleteOldNotification(user.getId(), post.getUser().getId(), NotificationType.COMMENT.getType());
-        notificationService.createNotification(user,post.getUser(), post,user.getFullName()+" Commented on your post.",NotificationType.COMMENT.getType());
-
+        if (!user.getId().equals(post.getUser().getId())) {
+            String userFirstName =  Utility.findFirstNameOfUser(user.getFullName());
+            notificationService.deleteOldPostNotification(user.getId(), post.getUser().getId(), postId, NotificationType.COMMENT.getType());
+            notificationService.createNotification(user, post.getUser(), post, userFirstName + " Commented on your post.", NotificationType.COMMENT.getType());
+        }
     }
 
     public void editComment(Long commentId, Principal currentUser, CommentRequestDto commentRequestDto) {
@@ -122,8 +125,11 @@ public class CommentServiceImpl implements CommentService {
                 like.setComment(comment);
                 like.setCreatedDate(LocalDateTime.now());
                 likeCommentRepository.save(like);
-                notificationService.deleteOldNotification(user.getId(), comment.getPost().getUser().getId(), NotificationType.LIKE_COMMENT.getType());
-                notificationService.createNotification(user,comment.getPost().getUser(), comment.getPost(),user.getFullName()+" Liked Your Comment: ",NotificationType.LIKE_COMMENT.getType());
+                if (!user.getId().equals(comment.getPost().getUser().getId())) {
+                    String userFirstName =  Utility.findFirstNameOfUser(user.getFullName());
+                    notificationService.deleteOldPostNotification(user.getId(), comment.getPost().getUser().getId(), comment.getPost().getId(), NotificationType.LIKE_COMMENT.getType());
+                    notificationService.createNotification(user, comment.getPost().getUser(), comment.getPost(), userFirstName + " Liked Your Comment: ", NotificationType.LIKE_COMMENT.getType());
+                }
             } catch (DataIntegrityViolationException e) {
                 throw new IllegalStateException("User has already liked this comment", e);
             }

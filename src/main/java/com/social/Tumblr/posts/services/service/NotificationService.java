@@ -15,8 +15,11 @@ public interface NotificationService {
 
     public void markNotificationAsRead(Long notificationId);
 
-    public Notification createNotification(Users fromUser, Users toUser, Posts post,String notificationMessage,String type);
+    public Notification createNotification(Users fromUser, Users toUser, Posts post, String notificationMessage, String type);
 
     public void deleteOldNotification(Integer fromUserId, Integer toUserId, String type);
 
-    }
+    public void deleteOldPostNotification(Integer fromUserId, Integer toUserId, Long postId, String type);
+
+    public void deleteById(Long id);
+}
