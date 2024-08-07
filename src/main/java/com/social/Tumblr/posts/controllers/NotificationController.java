@@ -23,9 +23,9 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{notificationId}")
-    public ResponseEntity<?> deleteStory(@PathVariable Long notificationId, Principal currentUser) {
+    public ResponseEntity<?> deleteNotification(@PathVariable Long notificationId, Principal currentUser) {
         notificationService.deleteById(notificationId);
-        return ResponseEntity.ok("Story deleted successfully");
+        return ResponseEntity.ok("Notification deleted successfully");
     }
 
 }
